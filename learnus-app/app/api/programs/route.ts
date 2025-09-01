@@ -1,43 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { openDb } from '@/lib/db';
+import { programService } from '@/lib/services';
+import { handleApiError } from '@/lib/utils/error-handler';
+import { CreateProgramSchema } from '@/lib/services/program-service';
 
+/**
+ * GET /api/programs
+ * Получить список всех учебных программ
+ */
 export async function GET() {
   try {
-    const db = await openDb();
-    const programs = await db.all('SELECT * FROM learning_programs ORDER BY created_at DESC');
-    await db.close();
-    
-    return NextResponse.json(programs);
+    const programs = await programService.getAllPrograms();
+    return NextResponse.json({ data: programs });
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to fetch programs' },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
+/**
+ * POST /api/programs
+ * Создать новую учебную программу
+ */
 export async function POST(request: NextRequest) {
   try {
-    const { title, description } = await request.json();
+    // Получаем и валидируем данные
+    const body = await request.json();
+    const validatedData = CreateProgramSchema.parse(body);
     
-    const db = await openDb();
-    const result = await db.run(
-      'INSERT INTO learning_programs (title, description) VALUES (?, ?)',
-      [title, description]
-    );
+    // Создаем программу через сервис
+    const program = await programService.createProgram(validatedData);
     
-    const program = await db.get(
-      'SELECT * FROM learning_programs WHERE id = ?',
-      [result.lastID]
-    );
-    
-    await db.close();
-    
-    return NextResponse.json(program);
-  } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to create program' },
-      { status: 500 }
+      { data: program },
+      { status: 201 }
     );
+  } catch (error) {
+    return handleApiError(error);
   }
 }

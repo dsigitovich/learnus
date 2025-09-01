@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { nodeService, programService } from '@/lib/services';
+import { progressService } from '@/lib/services';
 import { handleApiError } from '@/lib/utils/error-handler';
-import { CreateNodeSchema } from '@/lib/services/node-service';
+import { UpdateProgressSchema } from '@/lib/services/progress-service';
 import { z } from 'zod';
 
 // Схема для параметров
@@ -10,8 +10,8 @@ const ParamsSchema = z.object({
 });
 
 /**
- * GET /api/programs/[id]/nodes
- * Получить все узлы программы
+ * GET /api/nodes/[id]/progress
+ * Получить прогресс узла
  */
 export async function GET(
   request: NextRequest,
@@ -21,41 +21,43 @@ export async function GET(
     // Валидируем параметры
     const { id } = ParamsSchema.parse(params);
     
-    // Получаем узлы программы
-    const nodes = await programService.getProgramNodes(id);
+    // Получаем прогресс
+    const progress = await progressService.getNodeProgress(id);
     
-    return NextResponse.json({ data: nodes });
+    return NextResponse.json({
+      data: progress || {
+        node_id: id,
+        status: 'not_started',
+      },
+    });
   } catch (error) {
     return handleApiError(error);
   }
 }
 
 /**
- * POST /api/programs/[id]/nodes
- * Создать новый узел в программе
+ * PUT /api/nodes/[id]/progress
+ * Обновить прогресс узла
  */
-export async function POST(
+export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     // Валидируем параметры
-    const { id: programId } = ParamsSchema.parse(params);
+    const { id: nodeId } = ParamsSchema.parse(params);
     
     // Получаем и валидируем данные
     const body = await request.json();
-    const validatedData = CreateNodeSchema.parse({
+    const validatedData = UpdateProgressSchema.parse({
       ...body,
-      programId,
+      nodeId,
     });
     
-    // Создаем узел
-    const node = await nodeService.createNode(validatedData);
+    // Обновляем прогресс
+    const progress = await progressService.updateProgress(validatedData);
     
-    return NextResponse.json(
-      { data: node },
-      { status: 201 }
-    );
+    return NextResponse.json({ data: progress });
   } catch (error) {
     return handleApiError(error);
   }
