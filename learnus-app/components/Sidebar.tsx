@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MessageSquare, GitBranch, Plus, BookOpen } from 'lucide-react';
+import { MessageSquare, GitBranch, Plus, BookOpen, Sparkles } from 'lucide-react';
 import { useStore } from '@/lib/store';
 import { LearningProgram } from '@/lib/types';
+import ProgramGenerator from './ProgramGenerator';
 
 export default function Sidebar() {
   const { viewMode, setViewMode, currentProgram, setCurrentProgram } = useStore();
   const [programs, setPrograms] = useState<LearningProgram[]>([]);
   const [showNewProgram, setShowNewProgram] = useState(false);
+  const [showGenerator, setShowGenerator] = useState(false);
   const [newProgramData, setNewProgramData] = useState({ title: '', description: '' });
   
   useEffect(() => {
@@ -82,12 +84,22 @@ export default function Sidebar() {
       <div className="flex-1 overflow-y-auto p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-gray-400">Программы</h3>
-          <button
-            onClick={() => setShowNewProgram(true)}
-            className="text-gray-400 hover:text-white"
-          >
-            <Plus size={16} />
-          </button>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setShowGenerator(true)}
+              className="text-purple-400 hover:text-purple-300 transition-colors"
+              title="Создать с AI"
+            >
+              <Sparkles size={16} />
+            </button>
+            <button
+              onClick={() => setShowNewProgram(true)}
+              className="text-gray-400 hover:text-white transition-colors"
+              title="Создать вручную"
+            >
+              <Plus size={16} />
+            </button>
+          </div>
         </div>
         
         <div className="space-y-2">
@@ -116,6 +128,17 @@ export default function Sidebar() {
           ))}
         </div>
       </div>
+      
+      {/* Program Generator */}
+      {showGenerator && (
+        <ProgramGenerator
+          onClose={() => setShowGenerator(false)}
+          onProgramCreated={(program) => {
+            fetchPrograms();
+            setCurrentProgram(program);
+          }}
+        />
+      )}
       
       {/* New Program Dialog */}
       {showNewProgram && (

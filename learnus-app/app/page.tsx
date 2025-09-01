@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import Chat from '@/components/Chat';
-import ProgramTree from '@/components/ProgramTree';
+import EnhancedProgramTree from '@/components/EnhancedProgramTree';
 import Sidebar from '@/components/Sidebar';
 
 export default function Home() {
@@ -21,7 +21,7 @@ export default function Home() {
     <div className="flex h-screen">
       <Sidebar />
       <div className="flex-1">
-        {viewMode === 'chat' ? <Chat /> : <ProgramTree />}
+        {viewMode === 'chat' ? <Chat /> : <EnhancedProgramTree />}
       </div>
     </div>
   );
