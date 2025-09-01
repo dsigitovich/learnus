@@ -55,6 +55,30 @@ export async function PATCH(
 }
 
 /**
+ * PUT /api/nodes/[id]
+ * Полностью обновить узел (альтернатива PATCH)
+ */
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const resolvedParams = await params;
+    const { id } = StringParamsSchema.parse(resolvedParams);
+    // Получаем и валидируем данные
+    const body = await request.json();
+    const validatedData = UpdateNodeSchema.parse(body);
+    
+    // Обновляем узел
+    const node = await nodeService.updateNode(id, validatedData);
+    
+    return NextResponse.json({ data: node });
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+
+/**
  * DELETE /api/nodes/[id]
  * Удалить узел
  */

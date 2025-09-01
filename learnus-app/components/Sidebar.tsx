@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MessageSquare, GitBranch, Plus, BookOpen } from 'lucide-react';
+import { MessageSquare, Table, Plus, BookOpen } from 'lucide-react';
 import { useStore } from '@/lib/store';
 import { LearningProgram } from '@/lib/types';
 
@@ -76,13 +76,13 @@ export default function Sidebar() {
             <span>Чат</span>
           </button>
           <button
-            onClick={() => setViewMode('tree')}
+            onClick={() => setViewMode('table')}
             className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
-              viewMode === 'tree' ? 'bg-gray-800' : 'hover:bg-gray-800'
+              viewMode === 'table' ? 'bg-gray-800' : 'hover:bg-gray-800'
             }`}
           >
-            <GitBranch size={20} />
-            <span>Дерево программы</span>
+            <Table size={20} />
+            <span>Таблица тем</span>
           </button>
         </div>
       </div>

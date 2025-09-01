@@ -108,7 +108,7 @@ export interface SortParams {
 }
 
 // Типы для режимов просмотра
-export type ViewMode = 'chat' | 'tree' | 'kanban' | 'list';
+export type ViewMode = 'chat' | 'table' | 'kanban' | 'list';
 
 // Типы для темы оформления
 export type Theme = 'light' | 'dark' | 'system';
