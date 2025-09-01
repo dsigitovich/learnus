@@ -5,10 +5,16 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "db:init": "tsx scripts/init-db.ts",
+    "db:reset": "rm -f learnus.db && npm run db:init"
   },
   "dependencies": {
     "@types/sqlite3": "^3.1.11",
+    "date-fns": "^4.1.0",
+    "immer": "^10.1.1",
     "lucide-react": "^0.542.0",
     "next": "15.5.2",
     "openai": "^5.16.0",
@@ -17,6 +23,7 @@
     "reactflow": "^11.11.4",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
+    "zod": "^3.24.1",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
@@ -25,7 +32,11 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "tailwindcss": "^4",
+    "tsx": "^4.20.5",
     "typescript": "^5"
   }
 }
+<<<<<<< Current (Your changes)
 
+=======
+>>>>>>> Incoming (Background Agent changes)
