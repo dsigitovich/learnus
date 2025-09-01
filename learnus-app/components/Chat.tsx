@@ -74,14 +74,14 @@ export default function Chat() {
   };
   
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="flex flex-col h-screen bg-gray-50">
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-6 py-4">
         {messages.length === 0 && (
-          <div className="text-center text-gray-600 dark:text-gray-300 mt-20">
-            <h1 className="text-4xl font-bold mb-4 text-gray-800 dark:text-white">Learnus</h1>
-            <p className="text-lg text-gray-700 dark:text-gray-200">Начните обучение с помощью AI</p>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">Задайте вопрос, чтобы начать обучение</p>
+          <div className="text-center text-gray-600 mt-20">
+            <h1 className="text-4xl font-bold mb-4 text-gray-800">Learnus</h1>
+            <p className="text-lg text-gray-700">Начните обучение с помощью AI</p>
+            <p className="mt-2 text-gray-600">Задайте вопрос, чтобы начать обучение</p>
           </div>
         )}
         
@@ -96,7 +96,7 @@ export default function Chat() {
               className={`inline-block max-w-3xl px-4 py-2 rounded-lg ${
                 message.role === 'user'
                   ? 'bg-blue-500 text-white'
-                  : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 shadow-sm'
+                  : 'bg-white text-gray-800 shadow-sm'
               }`}
             >
               {message.content}
@@ -106,7 +106,7 @@ export default function Chat() {
         
         {loading && (
           <div className="text-left mb-4">
-            <div className="inline-block bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-lg shadow-sm">
+            <div className="inline-block bg-white text-gray-800 px-4 py-2 rounded-lg shadow-sm">
               <div className="flex space-x-2">
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
@@ -120,7 +120,7 @@ export default function Chat() {
       </div>
       
       {/* Input */}
-      <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-6 py-4">
+      <div className="bg-white border-t border-gray-200 px-6 py-4">
         <div className="flex space-x-4">
           <input
             type="text"
@@ -128,7 +128,7 @@ export default function Chat() {
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
             placeholder="Введите сообщение..."
-            className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 px-4 py-2 border border-gray-300 bg-white text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             disabled={loading}
           />
           <button
