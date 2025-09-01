@@ -9,6 +9,9 @@ export function usePrograms() {
     isLoading,
     error,
     setPrograms,
+    addProgram,
+    updateProgram,
+    deleteProgram,
     setLoading,
     setError,
   } = useProgramStore();
@@ -27,12 +30,12 @@ export function usePrograms() {
   }, [setPrograms, setLoading, setError]);
 
   // Создание новой программы
-  const createProgram = useCallback(
+  const createProgramHandler = useCallback(
     async (data: { title: string; description?: string }) => {
       setLoading(true);
       try {
         const program = await programService.createProgram(data);
-        useProgramStore.getState().addProgram(program);
+        addProgram(program);
         return program;
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to create program');
@@ -41,16 +44,16 @@ export function usePrograms() {
         setLoading(false);
       }
     },
-    [setLoading, setError]
+    [setLoading, setError, addProgram]
   );
 
   // Обновление программы
-  const updateProgram = useCallback(
+  const updateProgramHandler = useCallback(
     async (id: number, updates: Partial<LearningProgram>) => {
       setLoading(true);
       try {
         const program = await programService.updateProgram(id, updates);
-        useProgramStore.getState().updateProgram(id, program);
+        updateProgram(id, program);
         return program;
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to update program');
@@ -59,16 +62,16 @@ export function usePrograms() {
         setLoading(false);
       }
     },
-    [setLoading, setError]
+    [setLoading, setError, updateProgram]
   );
 
   // Удаление программы
-  const deleteProgram = useCallback(
+  const deleteProgramHandler = useCallback(
     async (id: number) => {
       setLoading(true);
       try {
         await programService.deleteProgram(id);
-        useProgramStore.getState().deleteProgram(id);
+        deleteProgram(id);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to delete program');
         throw err;
@@ -76,7 +79,7 @@ export function usePrograms() {
         setLoading(false);
       }
     },
-    [setLoading, setError]
+    [setLoading, setError, deleteProgram]
   );
 
   // Загрузка программ при монтировании
@@ -91,9 +94,9 @@ export function usePrograms() {
     isLoading,
     error,
     fetchPrograms,
-    createProgram,
-    updateProgram,
-    deleteProgram,
+    createProgram: createProgramHandler,
+    updateProgram: updateProgramHandler,
+    deleteProgram: deleteProgramHandler,
   };
 }
 

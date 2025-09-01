@@ -2,24 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { programService } from '@/lib/services';
 import { handleApiError } from '@/lib/utils/error-handler';
 import { UpdateProgramSchema } from '@/lib/services/program-service';
-import { z } from 'zod';
-
-// Схема для параметров
-const ParamsSchema = z.object({
-  id: z.string().transform(Number),
-});
+import { NumericParamsSchema } from '@/lib/utils/validation';
 
 /**
  * GET /api/programs/[id]
  * Получить программу по ID
  */
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Валидируем параметры
-    const { id } = ParamsSchema.parse(params);
+    const resolvedParams = await params;
+    const { id } = NumericParamsSchema.parse(resolvedParams);
     
     // Получаем программу
     const program = await programService.getProgramById(id);
@@ -51,11 +47,12 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Валидируем параметры
-    const { id } = ParamsSchema.parse(params);
+    const resolvedParams = await params;
+    const { id } = NumericParamsSchema.parse(resolvedParams);
     
     // Получаем и валидируем данные
     const body = await request.json();
@@ -75,12 +72,13 @@ export async function PATCH(
  * Удалить программу
  */
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Валидируем параметры
-    const { id } = ParamsSchema.parse(params);
+    const resolvedParams = await params;
+    const { id } = NumericParamsSchema.parse(resolvedParams);
     
     // Удаляем программу
     await programService.deleteProgram(id);

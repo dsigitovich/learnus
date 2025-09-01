@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Проверяем наличие API ключа
     if (!process.env.OPENAI_API_KEY) {
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     // Пробуем сделать простой запрос для проверки квоты
     let quotaStatus = 'unknown';
     try {
-      const testCompletion = await openai.chat.completions.create({
+      await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
         messages: [{ role: "user", content: "test" }],
         max_tokens: 5,

@@ -1,6 +1,6 @@
 #!/usr/bin/env ts-node
 
-import { initializeDatabase, checkDatabaseHealth } from '../lib/db';
+import { initializeDatabase, checkDatabaseHealth } from '../lib/db/index';
 
 async function main() {
   console.log('🚀 Инициализация базы данных...');
@@ -9,6 +9,9 @@ async function main() {
     // Инициализация
     await initializeDatabase();
     console.log('✅ База данных успешно инициализирована');
+    
+    // Небольшая задержка для завершения операций
+    await new Promise(resolve => setTimeout(resolve, 100));
     
     // Проверка состояния
     const health = await checkDatabaseHealth();

@@ -84,8 +84,8 @@ export default function ProgramTree() {
     [setEdges]
   );
   
-  const onNodeClick = useCallback((event: any, node: Node) => {
-    const programNode = programNodes.find(n => n.id.toString() === node.id);
+  const onNodeClick = useCallback((_event: any, node: Node) => {
+    const programNode: ProgramNode | undefined = programNodes.find(n => n.id.toString() === node.id);
     if (programNode) {
       setSelectedNode(programNode);
     }

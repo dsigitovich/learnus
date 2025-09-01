@@ -117,7 +117,10 @@ export class NodeService {
         throw new Error('Failed to create node');
       }
 
-      node.position = JSON.parse(node.position as string);
+      // Парсим position, если это строка
+      if (typeof node.position === 'string') {
+        node.position = JSON.parse(node.position);
+      }
       return node;
     } finally {
       await db.close();

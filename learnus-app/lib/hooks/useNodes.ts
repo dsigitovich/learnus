@@ -50,7 +50,13 @@ export function useNodes() {
     async (id: string, updates: Partial<ProgramNode>) => {
       setLoading(true);
       try {
-        const node = await nodeService.updateNode(id, updates);
+        // Преобразуем null в undefined для совместимости с UpdateNodeSchema
+        const cleanUpdates = {
+          ...updates,
+          description: updates.description === null ? undefined : updates.description,
+          content: updates.content === null ? undefined : updates.content,
+        };
+        const node = await nodeService.updateNode(id, cleanUpdates);
         updateNode(id, node);
         return node;
       } catch (err) {

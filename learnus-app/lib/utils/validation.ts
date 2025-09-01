@@ -3,6 +3,27 @@ import { z } from 'zod';
 // Общие схемы валидации
 export const IdSchema = z.union([z.string(), z.number()]).transform(String);
 
+// Схема для числовых ID
+export const NumericIdSchema = z.union([z.string(), z.number()]).transform(Number);
+
+// Схема для строковых ID
+export const StringIdSchema = z.union([z.string(), z.number()]).transform(String);
+
+// Схема для параметров API роутов
+export const ParamsSchema = z.object({
+  id: IdSchema,
+});
+
+// Схема для параметров API роутов с числовыми ID
+export const NumericParamsSchema = z.object({
+  id: NumericIdSchema,
+});
+
+// Схема для параметров API роутов со строковыми ID
+export const StringParamsSchema = z.object({
+  id: StringIdSchema,
+});
+
 export const DateSchema = z.string().datetime();
 
 export const PaginationSchema = z.object({
@@ -63,8 +84,14 @@ export function validatePartial<T>(
   schema: z.ZodSchema<T>,
   data: unknown
 ): { success: true; data: Partial<T> } | { success: false; errors: z.ZodError } {
-  const partialSchema = schema.partial();
-  return validateInput(partialSchema, data);
+  // Проверяем, поддерживает ли схема метод partial
+  if ('partial' in schema && typeof schema.partial === 'function') {
+    const partialSchema = schema.partial();
+    return validateInput(partialSchema, data);
+  }
+  
+  // Если partial не поддерживается, используем обычную валидацию
+  return validateInput(schema, data);
 }
 
 // Санитизация строк

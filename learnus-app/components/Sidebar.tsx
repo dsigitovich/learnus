@@ -8,6 +8,7 @@ import { LearningProgram } from '@/lib/types';
 export default function Sidebar() {
   const { viewMode, setViewMode, currentProgram, setCurrentProgram } = useStore();
   const [programs, setPrograms] = useState<LearningProgram[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [showNewProgram, setShowNewProgram] = useState(false);
   const [newProgramData, setNewProgramData] = useState({ title: '', description: '' });
   
@@ -16,12 +17,18 @@ export default function Sidebar() {
   }, []);
   
   const fetchPrograms = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch('/api/programs');
       const data = await response.json();
-      setPrograms(data);
+      // API возвращает данные в формате { data: [...] }
+      const programsData = data.data || [];
+      setPrograms(programsData);
     } catch (error) {
       console.error('Error fetching programs:', error);
+      setPrograms([]);
+    } finally {
+      setIsLoading(false);
     }
   };
   
@@ -36,7 +43,9 @@ export default function Sidebar() {
       });
       
       if (response.ok) {
-        const program = await response.json();
+        const result = await response.json();
+        // API возвращает данные в формате { data: {...} }
+        const program = result.data || result;
         setPrograms([program, ...programs]);
         setCurrentProgram(program);
         setShowNewProgram(false);
@@ -91,29 +100,39 @@ export default function Sidebar() {
         </div>
         
         <div className="space-y-2">
-          {programs.map((program) => (
-            <button
-              key={program.id}
-              onClick={() => setCurrentProgram(program)}
-              className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                currentProgram?.id === program.id
-                  ? 'bg-gray-800'
-                  : 'hover:bg-gray-800'
-              }`}
-            >
-              <div className="flex items-center space-x-2">
-                <BookOpen size={16} />
-                <div className="flex-1 min-w-0">
-                  <div className="truncate">{program.title}</div>
-                  {program.description && (
-                    <div className="text-xs text-gray-400 truncate">
-                      {program.description}
-                    </div>
-                  )}
+          {isLoading ? (
+            <div className="text-gray-400 text-sm py-2 text-center">
+              Загрузка...
+            </div>
+          ) : programs && programs.length > 0 ? (
+            programs.map((program) => (
+              <button
+                key={program.id}
+                onClick={() => setCurrentProgram(program)}
+                className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                  currentProgram?.id === program.id
+                    ? 'bg-gray-800'
+                    : 'hover:bg-gray-800'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <BookOpen size={16} />
+                  <div className="flex-1 min-w-0">
+                    <div className="truncate">{program.title}</div>
+                    {program.description && (
+                      <div className="text-xs text-gray-400 truncate">
+                        {program.description}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            ))
+          ) : (
+            <div className="text-gray-400 text-sm py-2 text-center">
+              Нет программ
+            </div>
+          )}
         </div>
       </div>
       

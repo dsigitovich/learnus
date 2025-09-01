@@ -42,16 +42,18 @@ export async function POST(request: NextRequest) {
       const nodes = [];
       for (let i = 0; i < generatedProgram.nodes.length; i++) {
         const nodeData = generatedProgram.nodes[i];
-        const node = await nodeService.createNode({
-          programId: program.id,
-          title: nodeData.title,
-          description: nodeData.description,
-          position: {
-            x: 100 + (i % 3) * 250,
-            y: 100 + Math.floor(i / 3) * 200,
-          },
-        });
-        nodes.push(node);
+        if (nodeData) {
+          const node = await nodeService.createNode({
+            programId: program.id,
+            title: nodeData.title,
+            description: nodeData.description,
+            position: {
+              x: 100 + (i % 3) * 250,
+              y: 100 + Math.floor(i / 3) * 200,
+            },
+          });
+          nodes.push(node);
+        }
       }
       
       return NextResponse.json({

@@ -191,11 +191,14 @@ export async function checkDatabaseHealth(): Promise<{
       `SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'`
     );
     
+    // Сохраняем результаты перед закрытием
+    const tableNames = tables.map(t => t.name);
+    
     await database.close();
     
     return {
       isHealthy: true,
-      tables: tables.map(t => t.name),
+      tables: tableNames,
     };
   } catch (error) {
     return {

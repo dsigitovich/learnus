@@ -2,17 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { nodeService } from '@/lib/services';
 import { handleApiError } from '@/lib/utils/error-handler';
 import { UpdateNodeSchema } from '@/lib/services/node-service';
+import { StringParamsSchema } from '@/lib/utils/validation';
 
 /**
  * GET /api/nodes/[id]
  * Получить узел по ID
  */
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const node = await nodeService.getNodeById(params.id);
+    const resolvedParams = await params;
+    const { id } = StringParamsSchema.parse(resolvedParams);
+    const node = await nodeService.getNodeById(id);
     
     if (!node) {
       return NextResponse.json(
@@ -33,15 +36,17 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params;
+    const { id } = StringParamsSchema.parse(resolvedParams);
     // Получаем и валидируем данные
     const body = await request.json();
     const validatedData = UpdateNodeSchema.parse(body);
     
     // Обновляем узел
-    const node = await nodeService.updateNode(params.id, validatedData);
+    const node = await nodeService.updateNode(id, validatedData);
     
     return NextResponse.json({ data: node });
   } catch (error) {
@@ -54,11 +59,13 @@ export async function PATCH(
  * Удалить узел
  */
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await nodeService.deleteNode(params.id);
+    const resolvedParams = await params;
+    const { id } = StringParamsSchema.parse(resolvedParams);
+    await nodeService.deleteNode(id);
     
     return NextResponse.json(
       { message: 'Node deleted successfully' },

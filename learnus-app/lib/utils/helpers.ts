@@ -232,7 +232,7 @@ export function generateColor(index: number): string {
     '#F97316', // orange
   ];
   
-  return colors[index % colors.length];
+  return colors[index % colors.length] || colors[0]!;
 }
 
 // Клонирование объектов

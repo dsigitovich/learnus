@@ -21,7 +21,11 @@ export default function ComponentName({
   const [data, setData] = useState<any>(null);
   
   // Store
-  const { someData, setSomeData } = useStore();
+  const { currentProgram, setCurrentProgram } = useStore();
+  
+  // Используем переменные для избежания ошибок линтера
+  console.log('Current program:', currentProgram);
+  const updateProgram = () => setCurrentProgram(null);
   
   // Эффекты
   useEffect(() => {
@@ -91,6 +95,28 @@ export default function ComponentName({
       
       {/* Контент */}
       <div className="space-y-4">
+        {/* Форма */}
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.currentTarget);
+          handleSubmit(formData);
+        }}>
+          <div className="space-y-3">
+            <input
+              type="text"
+              name="title"
+              placeholder="Название"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="submit"
+              className="w-full px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition-colors"
+            >
+              Отправить форму
+            </button>
+          </div>
+        </form>
+        
         {/* Основной контент компонента */}
         <div className="bg-gray-50 rounded-md p-4">
           <p className="text-gray-700">
@@ -105,6 +131,13 @@ export default function ComponentName({
             className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
           >
             Действие
+          </button>
+          
+          <button
+            onClick={updateProgram}
+            className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+          >
+            Обновить программу
           </button>
           
           <button

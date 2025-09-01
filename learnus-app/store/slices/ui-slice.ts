@@ -50,7 +50,7 @@ export const createUISlice: StateCreator<UISlice> = (set, get) => ({
     };
     
     // Автоматически удаляем уведомление после истечения времени
-    if (newNotification.duration > 0) {
+    if (newNotification.duration && newNotification.duration > 0) {
       setTimeout(() => {
         get().removeNotification(id);
       }, newNotification.duration);

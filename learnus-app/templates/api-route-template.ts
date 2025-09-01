@@ -15,9 +15,7 @@ const UpdateDataSchema = z.object({
   // Добавьте другие поля по необходимости
 });
 
-// Типы
-type CreateDataRequest = z.infer<typeof CreateDataSchema>;
-type UpdateDataRequest = z.infer<typeof UpdateDataSchema>;
+
 
 // Вспомогательные функции
 function handleApiError(error: unknown): NextResponse {
@@ -48,7 +46,7 @@ function handleApiError(error: unknown): NextResponse {
 
 // GET - получение данных
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id?: string } }
 ) {
   try {
@@ -182,7 +180,7 @@ export async function PUT(
 
 // DELETE - удаление данных
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {

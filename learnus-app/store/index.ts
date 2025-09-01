@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import { immer } from 'zustand/middleware/immer';
 
 // Импорт слайсов
 import { ProgramSlice, createProgramSlice } from './slices/program-slice';
@@ -15,12 +14,12 @@ export type AppStore = ProgramSlice & ChatSlice & ProgressSlice & UISlice;
 export const useStore = create<AppStore>()(
   devtools(
     persist(
-      immer((...args) => ({
+      (...args) => ({
         ...createProgramSlice(...args),
         ...createChatSlice(...args),
         ...createProgressSlice(...args),
         ...createUISlice(...args),
-      })),
+      }),
       {
         name: 'learnus-store',
         // Сохраняем только UI настройки
@@ -71,6 +70,7 @@ export const useChatStore = () => useStore((state) => ({
   addMessage: state.addMessage,
   clearMessages: state.clearMessages,
   setTyping: state.setTyping,
+  setError: state.setError,
   getLastMessage: state.getLastMessage,
   getMessagesByRole: state.getMessagesByRole,
 }));
@@ -85,6 +85,8 @@ export const useProgressStore = () => useStore((state) => ({
   updateNodeStatus: state.updateNodeStatus,
   resetProgress: state.resetProgress,
   setStats: state.setStats,
+  setLoading: state.setLoading,
+  setError: state.setError,
   getNodeProgress: state.getNodeProgress,
   isNodeCompleted: state.isNodeCompleted,
   getCompletedNodes: state.getCompletedNodes,

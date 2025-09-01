@@ -90,18 +90,25 @@ export class ChatService {
         ],
       });
 
+      if (!completion.choices[0] || !completion.choices[0].message) {
+        throw new Error('Invalid response structure from AI');
+      }
+      
       const reply = completion.choices[0].message.content;
       if (!reply) {
         throw new Error('Empty response from AI');
       }
 
       // Сохраняем в историю, если есть nodeId
-      if (validatedData.nodeId) {
-        await this.saveChatHistory(
-          validatedData.nodeId,
-          validatedData.messages[validatedData.messages.length - 1].content,
-          reply
-        );
+      if (validatedData.nodeId && validatedData.messages.length > 0) {
+        const lastMessage = validatedData.messages[validatedData.messages.length - 1];
+        if (lastMessage && lastMessage.content) {
+          await this.saveChatHistory(
+            validatedData.nodeId,
+            lastMessage.content,
+            reply
+          );
+        }
       }
 
       return reply;
@@ -226,6 +233,10 @@ export class ChatService {
         temperature: 0.7,
       });
 
+      if (!completion.choices[0] || !completion.choices[0].message) {
+        throw new Error('Invalid response structure from AI');
+      }
+      
       const response = completion.choices[0].message.content;
       if (!response) {
         throw new Error('Empty response from AI');

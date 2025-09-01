@@ -11,7 +11,6 @@ export function useProgress() {
     error,
     setProgress,
     setAllProgress,
-    updateNodeStatus,
     resetProgress,
     setStats,
     setLoading,

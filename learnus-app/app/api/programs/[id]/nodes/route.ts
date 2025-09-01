@@ -2,22 +2,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { nodeService, programService } from '@/lib/services';
 import { handleApiError } from '@/lib/utils/error-handler';
 import { CreateNodeSchema } from '@/lib/services/node-service';
-import { ParamsSchema } from '@/lib/utils/validation';
+import { NumericParamsSchema } from '@/lib/utils/validation';
 
 /**
  * GET /api/programs/[id]/nodes
  * Получить все узлы программы
  */
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Валидируем параметры
-    const { id } = ParamsSchema.parse(params);
+    const resolvedParams = await params;
+    const { id } = NumericParamsSchema.parse(resolvedParams);
     
     // Получаем узлы программы
-    const nodes = await nodeService.getProgramNodes(id);
+    const nodes = await programService.getProgramNodes(id);
     
     return NextResponse.json({
       data: nodes,
@@ -33,11 +34,12 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Валидируем параметры
-    const { id: programId } = ParamsSchema.parse(params);
+    const resolvedParams = await params;
+    const { id: programId } = NumericParamsSchema.parse(resolvedParams);
     
     // Получаем и валидируем данные
     const body = await request.json();

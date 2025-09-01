@@ -48,7 +48,7 @@ export function useChat() {
         const reply = await chatService.sendMessage({
           messages: messagesToSend,
           nodeId: selectedNode ? Number(selectedNode.id) : undefined,
-          nodeContent: selectedNode?.content,
+          nodeContent: selectedNode?.content || undefined,
         });
 
         // Добавляем ответ ассистента
