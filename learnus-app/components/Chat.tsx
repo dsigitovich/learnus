@@ -10,7 +10,7 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  const { messages, addMessage, selectedNode } = useStore();
+  const { messages, addMessage } = useStore();
   
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -38,8 +38,6 @@ export default function Chat() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [...messages, userMessage],
-          nodeId: selectedNode?.id,
-          nodeContent: selectedNode ? `${selectedNode.title}: ${selectedNode.description || ''}` : null,
         }),
       });
       
@@ -64,23 +62,13 @@ export default function Chat() {
   
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      {/* Header */}
-      {selectedNode && (
-        <div className="bg-white border-b px-6 py-4">
-          <h2 className="text-xl font-semibold">{selectedNode.title}</h2>
-          {selectedNode.description && (
-            <p className="text-gray-600 mt-1">{selectedNode.description}</p>
-          )}
-        </div>
-      )}
-      
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-6 py-4">
         {messages.length === 0 && (
           <div className="text-center text-gray-500 mt-20">
             <h1 className="text-4xl font-bold mb-4">Learnus</h1>
             <p className="text-lg">Начните обучение с помощью AI</p>
-            <p className="mt-2">Создайте учебную программу или выберите существующую</p>
+            <p className="mt-2">Задайте вопрос, чтобы начать обучение</p>
           </div>
         )}
         

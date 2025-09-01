@@ -36,48 +36,30 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * GET /api/chat?nodeId=123
- * Получить историю чата для узла
+ * GET /api/chat
+ * Получить историю чата
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const nodeId = searchParams.get('nodeId');
-    
-    if (!nodeId) {
-      return NextResponse.json(
-        { error: 'nodeId parameter is required' },
-        { status: 400 }
-      );
-    }
-    
     // Получаем историю чата
-    const history = await chatService.getChatHistory(Number(nodeId));
+    const messages = await chatService.getChatHistory();
     
-    return NextResponse.json({ data: history });
+    return NextResponse.json({
+      data: messages,
+    });
   } catch (error) {
     return handleApiError(error);
   }
 }
 
 /**
- * DELETE /api/chat?nodeId=123
- * Очистить историю чата для узла
+ * DELETE /api/chat
+ * Очистить историю чата
  */
-export async function DELETE(request: NextRequest) {
+export async function DELETE() {
   try {
-    const { searchParams } = new URL(request.url);
-    const nodeId = searchParams.get('nodeId');
-    
-    if (!nodeId) {
-      return NextResponse.json(
-        { error: 'nodeId parameter is required' },
-        { status: 400 }
-      );
-    }
-    
     // Очищаем историю чата
-    await chatService.clearChatHistory(Number(nodeId));
+    await chatService.clearChatHistory();
     
     return NextResponse.json({
       message: 'Chat history cleared successfully',

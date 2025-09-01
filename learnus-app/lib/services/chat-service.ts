@@ -1,6 +1,5 @@
 import OpenAI from 'openai';
 import { ChatMessage } from '@/lib/types';
-import { openDb } from '@/lib/db';
 import { z } from 'zod';
 
 // Схемы валидации
@@ -9,8 +8,6 @@ export const SendMessageSchema = z.object({
     role: z.enum(['user', 'assistant', 'system']),
     content: z.string().min(1),
   })),
-  nodeId: z.number().optional(),
-  nodeContent: z.string().optional(),
 });
 
 export type SendMessageData = z.infer<typeof SendMessageSchema>;
@@ -43,6 +40,7 @@ Your ultimate goal: guide the learner to discover knowledge and skills by themse
  */
 export class ChatService {
   private openai: OpenAI | null = null;
+  private chatHistory: ChatMessage[] = [];
 
   constructor() {
     if (process.env.OPENAI_API_KEY) {
@@ -53,7 +51,7 @@ export class ChatService {
   }
 
   /**
-   * Проверить доступность OpenAI API
+   * Проверить доступность сервиса
    * @returns boolean
    */
   isAvailable(): boolean {
@@ -77,9 +75,7 @@ export class ChatService {
     }
 
     // Формируем системное сообщение
-    const systemMessage = validatedData.nodeContent
-      ? `${SOCRATIC_PROMPT}\n\nТекущая тема обучения: ${validatedData.nodeContent}. Применяй Сократовский метод к этой теме.`
-      : `${SOCRATIC_PROMPT}\n\nПомогай пользователю создавать учебные программы и изучать различные темы через Сократовский метод.`;
+    const systemMessage = `${SOCRATIC_PROMPT}\n\nПомогай пользователю изучать различные темы через Сократовский метод.`;
 
     try {
       const completion = await this.openai.chat.completions.create({
@@ -99,15 +95,20 @@ export class ChatService {
         throw new Error('Empty response from AI');
       }
 
-      // Сохраняем в историю, если есть nodeId
-      if (validatedData.nodeId && validatedData.messages.length > 0) {
+      // Сохраняем в локальную историю
+      if (validatedData.messages.length > 0) {
         const lastMessage = validatedData.messages[validatedData.messages.length - 1];
         if (lastMessage && lastMessage.content) {
-          await this.saveChatHistory(
-            validatedData.nodeId,
-            lastMessage.content,
-            reply
-          );
+          this.chatHistory.push({
+            role: 'user',
+            content: lastMessage.content,
+            created_at: new Date().toISOString(),
+          });
+          this.chatHistory.push({
+            role: 'assistant',
+            content: reply,
+            created_at: new Date().toISOString(),
+          });
         }
       }
 
@@ -121,142 +122,21 @@ export class ChatService {
   }
 
   /**
-   * Сохранить историю чата
-   * @param nodeId - ID узла
-   * @param userMessage - Сообщение пользователя
-   * @param assistantMessage - Ответ ассистента
-   * @private
-   */
-  private async saveChatHistory(
-    nodeId: number,
-    userMessage: string,
-    assistantMessage: string
-  ): Promise<void> {
-    const db = await openDb();
-    try {
-      await db.run(
-        'INSERT INTO chat_history (node_id, role, content) VALUES (?, ?, ?)',
-        [nodeId, 'user', userMessage]
-      );
-      await db.run(
-        'INSERT INTO chat_history (node_id, role, content) VALUES (?, ?, ?)',
-        [nodeId, 'assistant', assistantMessage]
-      );
-    } catch (error) {
-      console.error('Failed to save chat history:', error);
-      // Не прерываем основной поток при ошибке сохранения
-    } finally {
-      await db.close();
-    }
-  }
-
-  /**
-   * Получить историю чата для узла
-   * @param nodeId - ID узла
+   * Получить историю чата
    * @returns Promise<ChatMessage[]>
-   * @throws {DatabaseError} Если ошибка БД
    */
-  async getChatHistory(nodeId: number): Promise<ChatMessage[]> {
-    const db = await openDb();
-    try {
-      const messages = await db.all<ChatMessage[]>(
-        'SELECT * FROM chat_history WHERE node_id = ? ORDER BY created_at',
-        [nodeId]
-      );
-      return messages;
-    } finally {
-      await db.close();
-    }
+  async getChatHistory(): Promise<ChatMessage[]> {
+    return this.chatHistory;
   }
 
   /**
-   * Очистить историю чата для узла
-   * @param nodeId - ID узла
+   * Очистить историю чата
    * @returns Promise<void>
-   * @throws {DatabaseError} Если ошибка БД
    */
-  async clearChatHistory(nodeId: number): Promise<void> {
-    const db = await openDb();
-    try {
-      await db.run('DELETE FROM chat_history WHERE node_id = ?', [nodeId]);
-    } finally {
-      await db.close();
-    }
-  }
-
-  /**
-   * Генерировать учебную программу с помощью AI
-   * @param topic - Тема для генерации
-   * @returns Promise<{title: string, description: string, nodes: Array}>
-   * @throws {ServiceUnavailableError} Если OpenAI недоступен
-   * @throws {Error} Если ошибка генерации
-   */
-  async generateProgram(topic: string): Promise<{
-    title: string;
-    description: string;
-    nodes: Array<{ title: string; description: string }>;
-  }> {
-    if (!this.openai) {
-      throw new Error('OpenAI API is not configured');
-    }
-
-    const prompt = `Создай структурированную учебную программу для изучения темы: "${topic}".
-    
-    Программа должна включать:
-    1. Название программы
-    2. Краткое описание (1-2 предложения)
-    3. 5-7 узлов обучения в логической последовательности
-    
-    Каждый узел должен содержать:
-    - Название (краткое, понятное)
-    - Описание (что будет изучаться)
-    
-    Ответ в формате JSON:
-    {
-      "title": "Название программы",
-      "description": "Описание программы",
-      "nodes": [
-        {"title": "Название узла", "description": "Описание узла"}
-      ]
-    }`;
-
-    try {
-      const completion = await this.openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: 'system',
-            content: 'Ты - эксперт в создании учебных программ. Отвечай только валидным JSON.',
-          },
-          { role: 'user', content: prompt },
-        ],
-        temperature: 0.7,
-      });
-
-      if (!completion.choices[0] || !completion.choices[0].message) {
-        throw new Error('Invalid response structure from AI');
-      }
-      
-      const response = completion.choices[0].message.content;
-      if (!response) {
-        throw new Error('Empty response from AI');
-      }
-
-      // Парсим JSON ответ
-      try {
-        const program = JSON.parse(response);
-        return program;
-      } catch (parseError) {
-        throw new Error('Invalid JSON response from AI');
-      }
-    } catch (error) {
-      if (error instanceof OpenAI.APIError) {
-        throw new Error(`OpenAI API error: ${error.message}`);
-      }
-      throw error;
-    }
+  async clearChatHistory(): Promise<void> {
+    this.chatHistory = [];
   }
 }
 
-// Экспортируем экземпляр сервиса
+// Создаем и экспортируем экземпляр сервиса
 export const chatService = new ChatService();
