@@ -35,16 +35,21 @@ export async function POST(request: NextRequest) {
     
     // Сохраняем в историю чата, если есть nodeId
     if (nodeId) {
-      const db = await openDb();
-      await db.run(
-        'INSERT INTO chat_history (node_id, role, content) VALUES (?, ?, ?)',
-        [nodeId, 'user', messages[messages.length - 1].content]
-      );
-      await db.run(
-        'INSERT INTO chat_history (node_id, role, content) VALUES (?, ?, ?)',
-        [nodeId, 'assistant', reply]
-      );
-      await db.close();
+      try {
+        const db = await openDb();
+        await db.run(
+          'INSERT INTO chat_history (node_id, role, content) VALUES (?, ?, ?)',
+          [nodeId, 'user', messages[messages.length - 1].content]
+        );
+        await db.run(
+          'INSERT INTO chat_history (node_id, role, content) VALUES (?, ?, ?)',
+          [nodeId, 'assistant', reply]
+        );
+        await db.close();
+      } catch (dbError) {
+        console.error('Database error:', dbError);
+        // Продолжаем выполнение даже если сохранение в БД не удалось
+      }
     }
     
     return NextResponse.json({ reply });
