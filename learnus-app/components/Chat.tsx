@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Send } from 'lucide-react';
-import { useStore } from '@/lib/store';
+import { useProgramStore, useChatStore } from '@/store';
 import { ChatMessage } from '@/lib/types';
 
 export default function Chat() {
@@ -10,7 +10,8 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  const { messages, addMessage, selectedNode } = useStore();
+  const { selectedNode } = useProgramStore();
+  const { messages, addMessage } = useChatStore();
   
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

@@ -2,13 +2,21 @@
 
 import { useState, useEffect } from 'react';
 import { MessageSquare, Table, Plus, BookOpen } from 'lucide-react';
-import { useStore } from '@/lib/store';
+import { useProgramStore, useUIStore } from '@/store';
 import { LearningProgram } from '@/lib/types';
 
 export default function Sidebar() {
-  const { viewMode, setViewMode, currentProgram, setCurrentProgram } = useStore();
-  const [programs, setPrograms] = useState<LearningProgram[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { viewMode, setViewMode } = useUIStore();
+  const { 
+    currentProgram, 
+    programs, 
+    setPrograms, 
+    addProgram, 
+    isLoading, 
+    setLoading, 
+    error, 
+    setError 
+  } = useProgramStore();
   const [showNewProgram, setShowNewProgram] = useState(false);
   const [newProgramData, setNewProgramData] = useState({ title: '', description: '' });
   
@@ -17,7 +25,7 @@ export default function Sidebar() {
   }, []);
   
   const fetchPrograms = async () => {
-    setIsLoading(true);
+    setLoading(true);
     try {
       const response = await fetch('/api/programs');
       const data = await response.json();
@@ -28,7 +36,7 @@ export default function Sidebar() {
       console.error('Error fetching programs:', error);
       setPrograms([]);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
@@ -46,13 +54,32 @@ export default function Sidebar() {
         const result = await response.json();
         // API возвращает данные в формате { data: {...} }
         const program = result.data || result;
-        setPrograms([program, ...programs]);
+        addProgram(program);
+        // Загружаем новую программу как текущую
+        const { setCurrentProgram, setNodes } = useProgramStore.getState();
         setCurrentProgram(program);
+        setNodes([]); // Новая программа пока не имеет узлов
         setShowNewProgram(false);
         setNewProgramData({ title: '', description: '' });
       }
     } catch (error) {
       console.error('Error creating program:', error);
+    }
+  };
+  
+  const selectProgram = async (program: LearningProgram) => {
+    try {
+      // Загружаем узлы программы через API
+      const response = await fetch(`/api/programs/${program.id}/nodes`);
+      if (response.ok) {
+        const data = await response.json();
+        // Обновляем текущую программу и её узлы в store
+        const { setCurrentProgram, setNodes } = useProgramStore.getState();
+        setCurrentProgram(program);
+        setNodes(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error loading program:', error);
     }
   };
   
@@ -108,7 +135,7 @@ export default function Sidebar() {
             programs.map((program) => (
               <button
                 key={program.id}
-                onClick={() => setCurrentProgram(program)}
+                onClick={() => selectProgram(program)}
                 className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                   currentProgram?.id === program.id
                     ? 'bg-gray-800'

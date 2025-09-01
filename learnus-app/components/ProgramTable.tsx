@@ -1,17 +1,38 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
-import { useStore } from '@/lib/store';
+import React, { useCallback, useState, useEffect } from 'react';
+import { useProgramStore } from '@/store';
 import { ProgramNode, NodeStatus } from '@/lib/types';
 import { Plus, CheckCircle, Circle, Clock, Edit2, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
 
 export default function ProgramTable() {
-  const { currentProgram, nodes: programNodes, setSelectedNode, selectedNode } = useStore();
+  const { currentProgram, nodes: programNodes, setNodes, selectedNode, setSelectedNode } = useProgramStore();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newNodeData, setNewNodeData] = useState({ title: '', description: '' });
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [editingNode, setEditingNode] = useState<string | null>(null);
   const [editData, setEditData] = useState({ title: '', description: '' });
+  
+  // Загружаем узлы при изменении текущей программы
+  useEffect(() => {
+    if (currentProgram) {
+      fetchNodes();
+    }
+  }, [currentProgram]);
+  
+  const fetchNodes = async () => {
+    if (!currentProgram) return;
+    
+    try {
+      const response = await fetch(`/api/programs/${currentProgram.id}/nodes`);
+      if (response.ok) {
+        const data = await response.json();
+        setNodes(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching nodes:', error);
+    }
+  };
   
   // Построение иерархической структуры из плоского списка
   const buildNodeTree = (nodes: ProgramNode[]): ProgramNode[] => {
@@ -66,16 +87,16 @@ export default function ProgramTable() {
         body: JSON.stringify({
           title: newNodeData.title,
           description: newNodeData.description,
-          parent_id: selectedNode?.id || null,
-          position_x: 0,
-          position_y: 0,
+          parentId: selectedNode?.id ? parseInt(selectedNode.id) : undefined,
+          position: { x: 0, y: 0 },
         }),
       });
       
       if (response.ok) {
+        // Перезагружаем узлы
+        await fetchNodes();
         setShowAddDialog(false);
         setNewNodeData({ title: '', description: '' });
-        // Обновление будет выполнено через хук useNodes
       }
     } catch (error) {
       console.error('Error adding node:', error);
@@ -96,6 +117,8 @@ export default function ProgramTable() {
       });
       
       if (response.ok) {
+        // Перезагружаем узлы
+        await fetchNodes();
         setEditingNode(null);
         setEditData({ title: '', description: '' });
       }
@@ -113,7 +136,8 @@ export default function ProgramTable() {
       });
       
       if (response.ok) {
-        // Обновление будет выполнено через хук useNodes
+        // Перезагружаем узлы
+        await fetchNodes();
       }
     } catch (error) {
       console.error('Error deleting node:', error);

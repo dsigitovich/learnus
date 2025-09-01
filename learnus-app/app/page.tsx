@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useStore } from '@/lib/store';
+import { useUIStore } from '@/store';
 import Chat from '@/components/Chat';
 import ProgramTable from '@/components/ProgramTable';
 import Sidebar from '@/components/Sidebar';
 
 export default function Home() {
-  const { viewMode } = useStore();
+  const { viewMode } = useUIStore();
   
   useEffect(() => {
     // Инициализация базы данных при первой загрузке
