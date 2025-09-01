@@ -64,5 +64,15 @@ export async function initDb() {
     )
   `);
   
+  // Таблица сессий обучения
+  await db.exec(`
+
+  `);
+  
+  // Таблица детального прогресса узлов
+  await db.exec(`
+
+  `);
+  
   await db.close();
 }

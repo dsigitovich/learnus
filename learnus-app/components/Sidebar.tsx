@@ -84,7 +84,7 @@ export default function Sidebar() {
           <h3 className="text-sm font-semibold text-gray-400">Программы</h3>
           <button
             onClick={() => setShowNewProgram(true)}
-            className="text-gray-400 hover:text-white"
+            className="text-gray-400 hover:text-white transition-colors"
           >
             <Plus size={16} />
           </button>
