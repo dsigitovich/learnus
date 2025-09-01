@@ -66,12 +66,29 @@ export async function initDb() {
   
   // Таблица сессий обучения
   await db.exec(`
-
+    CREATE TABLE IF NOT EXISTS learning_sessions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      program_id INTEGER NOT NULL,
+      started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      completed_at DATETIME,
+      status TEXT DEFAULT 'active',
+      FOREIGN KEY (program_id) REFERENCES learning_programs(id) ON DELETE CASCADE
+    )
   `);
   
   // Таблица детального прогресса узлов
   await db.exec(`
-
+    CREATE TABLE IF NOT EXISTS node_progress_details (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      node_id INTEGER NOT NULL,
+      session_id INTEGER NOT NULL,
+      time_spent INTEGER DEFAULT 0,
+      attempts INTEGER DEFAULT 0,
+      score REAL,
+      feedback TEXT,
+      FOREIGN KEY (node_id) REFERENCES program_nodes(id) ON DELETE CASCADE,
+      FOREIGN KEY (session_id) REFERENCES learning_sessions(id) ON DELETE CASCADE
+    )
   `);
   
   await db.close();

@@ -34,8 +34,3 @@ export interface LearningProgress {
   completed_at?: string;
   notes?: string;
 }
-<<<<<<< Current (Your changes)
-=======
-
-
->>>>>>> Incoming (Background Agent changes)

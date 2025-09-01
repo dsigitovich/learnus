@@ -2,12 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { progressService } from '@/lib/services';
 import { handleApiError } from '@/lib/utils/error-handler';
 import { UpdateProgressSchema } from '@/lib/services/progress-service';
-import { z } from 'zod';
-
-// Схема для параметров
-const ParamsSchema = z.object({
-  id: z.string().transform(Number),
-});
+import { ParamsSchema } from '@/lib/utils/validation';
 
 /**
  * GET /api/nodes/[id]/progress
@@ -21,14 +16,11 @@ export async function GET(
     // Валидируем параметры
     const { id } = ParamsSchema.parse(params);
     
-    // Получаем прогресс
+    // Получаем прогресс узла
     const progress = await progressService.getNodeProgress(id);
     
     return NextResponse.json({
-      data: progress || {
-        node_id: id,
-        status: 'not_started',
-      },
+      data: progress,
     });
   } catch (error) {
     return handleApiError(error);
@@ -45,19 +37,18 @@ export async function PUT(
 ) {
   try {
     // Валидируем параметры
-    const { id: nodeId } = ParamsSchema.parse(params);
+    const { id } = ParamsSchema.parse(params);
     
     // Получаем и валидируем данные
     const body = await request.json();
-    const validatedData = UpdateProgressSchema.parse({
-      ...body,
-      nodeId,
-    });
+    const validatedData = UpdateProgressSchema.parse(body);
     
     // Обновляем прогресс
-    const progress = await progressService.updateProgress(validatedData);
+    const updatedProgress = await progressService.updateNodeProgress(id, validatedData);
     
-    return NextResponse.json({ data: progress });
+    return NextResponse.json({
+      data: updatedProgress,
+    });
   } catch (error) {
     return handleApiError(error);
   }

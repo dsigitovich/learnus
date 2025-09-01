@@ -2,12 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { nodeService, programService } from '@/lib/services';
 import { handleApiError } from '@/lib/utils/error-handler';
 import { CreateNodeSchema } from '@/lib/services/node-service';
-import { z } from 'zod';
-
-// Схема для параметров
-const ParamsSchema = z.object({
-  id: z.string().transform(Number),
-});
+import { ParamsSchema } from '@/lib/utils/validation';
 
 /**
  * GET /api/programs/[id]/nodes
@@ -22,9 +17,11 @@ export async function GET(
     const { id } = ParamsSchema.parse(params);
     
     // Получаем узлы программы
-    const nodes = await programService.getProgramNodes(id);
+    const nodes = await nodeService.getProgramNodes(id);
     
-    return NextResponse.json({ data: nodes });
+    return NextResponse.json({
+      data: nodes,
+    });
   } catch (error) {
     return handleApiError(error);
   }
@@ -44,18 +41,17 @@ export async function POST(
     
     // Получаем и валидируем данные
     const body = await request.json();
-    const validatedData = CreateNodeSchema.parse({
-      ...body,
+    const validatedData = CreateNodeSchema.parse(body);
+    
+    // Создаем узел
+    const newNode = await nodeService.createNode({
+      ...validatedData,
       programId,
     });
     
-    // Создаем узел
-    const node = await nodeService.createNode(validatedData);
-    
-    return NextResponse.json(
-      { data: node },
-      { status: 201 }
-    );
+    return NextResponse.json({
+      data: newNode,
+    });
   } catch (error) {
     return handleApiError(error);
   }

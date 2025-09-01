@@ -5,12 +5,15 @@ import { CreateProgramSchema } from '@/lib/services/program-service';
 
 /**
  * GET /api/programs
- * Получить список всех учебных программ
+ * Получить список всех программ
  */
 export async function GET() {
   try {
     const programs = await programService.getAllPrograms();
-    return NextResponse.json({ data: programs });
+    
+    return NextResponse.json({
+      data: programs,
+    });
   } catch (error) {
     return handleApiError(error);
   }
@@ -18,7 +21,7 @@ export async function GET() {
 
 /**
  * POST /api/programs
- * Создать новую учебную программу
+ * Создать новую программу
  */
 export async function POST(request: NextRequest) {
   try {
@@ -26,13 +29,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = CreateProgramSchema.parse(body);
     
-    // Создаем программу через сервис
-    const program = await programService.createProgram(validatedData);
+    // Создаем программу
+    const newProgram = await programService.createProgram(validatedData);
     
-    return NextResponse.json(
-      { data: program },
-      { status: 201 }
-    );
+    return NextResponse.json({
+      data: newProgram,
+    }, { status: 201 });
   } catch (error) {
     return handleApiError(error);
   }
