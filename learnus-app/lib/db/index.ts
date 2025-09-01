@@ -104,6 +104,79 @@ export async function initializeDatabase(): Promise<void> {
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
 
+      -- Таблица курсов обучения
+      CREATE TABLE IF NOT EXISTS courses (
+        id TEXT PRIMARY KEY,
+        topic TEXT NOT NULL,
+        level TEXT NOT NULL CHECK(level IN ('beginner', 'intermediate', 'advanced')),
+        goal TEXT,
+        length TEXT NOT NULL CHECK(length IN ('short', 'medium', 'long')),
+        style TEXT NOT NULL CHECK(style IN ('questions', 'practice', 'theory')),
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Таблица блоков курса
+      CREATE TABLE IF NOT EXISTS course_blocks (
+        id TEXT PRIMARY KEY,
+        course_id TEXT NOT NULL,
+        type TEXT NOT NULL CHECK(type IN ('introduction', 'learning', 'practice', 'reflection')),
+        title TEXT NOT NULL,
+        content TEXT,
+        difficulty TEXT CHECK(difficulty IN ('easy', 'medium', 'hard')),
+        order_index INTEGER NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
+      );
+
+      -- Таблица вопросов
+      CREATE TABLE IF NOT EXISTS questions (
+        id TEXT PRIMARY KEY,
+        block_id TEXT NOT NULL,
+        text TEXT NOT NULL,
+        hint TEXT,
+        expected_answer TEXT,
+        order_index INTEGER NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (block_id) REFERENCES course_blocks(id) ON DELETE CASCADE
+      );
+
+      -- Таблица сессий обучения
+      CREATE TABLE IF NOT EXISTS learning_sessions (
+        id TEXT PRIMARY KEY,
+        course_id TEXT NOT NULL,
+        current_block_id TEXT NOT NULL,
+        current_question_index INTEGER DEFAULT 0,
+        progress REAL DEFAULT 0,
+        started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        completed_at DATETIME,
+        FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+        FOREIGN KEY (current_block_id) REFERENCES course_blocks(id)
+      );
+
+      -- Таблица инсайтов
+      CREATE TABLE IF NOT EXISTS insights (
+        id TEXT PRIMARY KEY,
+        session_id TEXT NOT NULL,
+        block_id TEXT NOT NULL,
+        type TEXT NOT NULL CHECK(type IN ('new_understanding', 'conclusion', 'difficulty')),
+        content TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (session_id) REFERENCES learning_sessions(id) ON DELETE CASCADE,
+        FOREIGN KEY (block_id) REFERENCES course_blocks(id)
+      );
+
+      -- Таблица прогресса пользователя
+      CREATE TABLE IF NOT EXISTS user_course_progress (
+        course_id TEXT PRIMARY KEY,
+        completed_blocks TEXT, -- JSON массив ID блоков
+        total_insights INTEGER DEFAULT 0,
+        progress_percentage REAL DEFAULT 0,
+        last_active_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
+      );
+
       -- Таблица истории изменений (для отмены/повтора действий)
       CREATE TABLE IF NOT EXISTS history_entries (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -121,6 +194,10 @@ export async function initializeDatabase(): Promise<void> {
       CREATE INDEX IF NOT EXISTS idx_chat_history_node ON chat_history(node_id);
       CREATE INDEX IF NOT EXISTS idx_learning_progress_status ON learning_progress(status);
       CREATE INDEX IF NOT EXISTS idx_history_entries_entity ON history_entries(entity_type, entity_id);
+      CREATE INDEX IF NOT EXISTS idx_course_blocks_course ON course_blocks(course_id);
+      CREATE INDEX IF NOT EXISTS idx_questions_block ON questions(block_id);
+      CREATE INDEX IF NOT EXISTS idx_learning_sessions_course ON learning_sessions(course_id);
+      CREATE INDEX IF NOT EXISTS idx_insights_session ON insights(session_id);
 
       -- Триггеры для обновления updated_at
       CREATE TRIGGER IF NOT EXISTS update_learning_programs_timestamp 
