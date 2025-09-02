@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { Course, CourseProgress } from '@/lib/types';
-import * as fs from 'fs';
-import * as path from 'path';
 import { COURSE_CREATION_PROMPT, courseKeywords, SOCRATIC_PROMPT } from '@/lib/templates/system_promts';
 
 
