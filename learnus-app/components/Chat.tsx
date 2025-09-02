@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send } from 'lucide-react';
+import { Send, BookOpen, GraduationCap } from 'lucide-react';
 import { useStore } from '@/lib/store';
 import { ChatMessage } from '@/lib/types';
 
@@ -10,7 +10,12 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  const { messages, addMessage, currentChatId } = useStore();
+  const { messages, addMessage, currentChatId, chats, courses, updateCourseProgress, createCourse } = useStore();
+  
+  // Получаем информацию о текущем чате и курсе
+  const currentChat = currentChatId ? chats.find(c => c.id === currentChatId) : null;
+  const currentCourse = currentChat?.courseId ? courses.find(c => c.id === currentChat.courseId) : null;
+  const courseProgress = currentChat?.courseProgress;
   
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -38,6 +43,11 @@ export default function Chat() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [...messages, userMessage],
+          context: currentCourse ? {
+            type: 'course',
+            course: currentCourse,
+            progress: courseProgress,
+          } : undefined,
         }),
       });
       
@@ -61,6 +71,15 @@ export default function Chat() {
           role: 'assistant',
           content: data.data.reply,
         });
+        
+        // Если в ответе есть данные курса, создаем новый курс
+        if (data.data.course) {
+          const courseId = createCourse(data.data.course);
+          addMessage({
+            role: 'system',
+            content: `✅ Курс "${data.data.course.title}" успешно создан! Вы можете найти его в разделе "Курсы" в боковой панели.`,
+          });
+        }
       }
     } catch (error) {
       console.error('Error sending message:', error);
@@ -75,13 +94,45 @@ export default function Chat() {
   
   return (
     <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900">
+      {/* Заголовок для курса */}
+      {currentCourse && currentChat?.type === 'course' && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800 px-6 py-3">
+          <div className="max-w-4xl mx-auto flex items-center gap-3">
+            <GraduationCap className="text-blue-600 dark:text-blue-400" size={24} />
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                {currentCourse.title}
+              </h2>
+              {courseProgress && (
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  Модуль {courseProgress.currentModuleIndex + 1} из {currentCourse.modules.length} • 
+                  Урок {courseProgress.currentLessonIndex + 1} из {currentCourse.modules[courseProgress.currentModuleIndex]?.lessons.length || 0}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-6 py-4 pt-20 md:pt-6">
         {messages.length === 0 && (
           <div className="text-center text-gray-600 dark:text-gray-300 mt-20">
-            <h1 className="text-4xl font-bold mb-4 text-gray-800 dark:text-white">Socrademy</h1>
-            <p className="text-lg text-gray-700 dark:text-gray-200">Начните обучение с помощью AI</p>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">Задайте вопрос, чтобы начать обучение</p>
+            {currentCourse && currentChat?.type === 'course' ? (
+              <>
+                <BookOpen className="mx-auto text-blue-600 dark:text-blue-400 mb-4" size={64} />
+                <h2 className="text-2xl font-bold mb-2 text-gray-800 dark:text-white">Добро пожаловать на курс!</h2>
+                <p className="text-lg text-gray-700 dark:text-gray-200">Готовы начать обучение?</p>
+                <p className="mt-2 text-gray-600 dark:text-gray-300">Напишите "Начать" или задайте вопрос</p>
+              </>
+            ) : (
+              <>
+                <h1 className="text-4xl font-bold mb-4 text-gray-800 dark:text-white">Socrademy</h1>
+                <p className="text-lg text-gray-700 dark:text-gray-200">Начните обучение с помощью AI</p>
+                <p className="mt-2 text-gray-600 dark:text-gray-300">Задайте вопрос, чтобы начать обучение</p>
+                <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Или создайте обучающий курс, написав "Создать курс по [тема]"</p>
+              </>
+            )}
           </div>
         )}
         
@@ -96,6 +147,8 @@ export default function Chat() {
               className={`inline-block max-w-3xl px-4 py-2 rounded-lg ${
                 message.role === 'user'
                   ? 'bg-blue-500 text-white'
+                  : message.role === 'system'
+                  ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 border border-green-300 dark:border-green-700'
                   : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 shadow-sm'
               }`}
             >

@@ -1,0 +1,72 @@
+{
+    "course": {
+      "title": "{course_title}",
+      "description": "{short_course_description}",
+      "level": "{Beginner|Intermediate|Advanced}",
+      "modules": [
+        {
+          "title": "{module_title}",
+          "learning_objectives": [
+            "{objective_1}",
+            "{objective_2}",
+            "{objective_3}"
+          ],
+          "lessons": [
+            {
+              "title": "{lesson_title_theory}",
+              "type": "theory",
+              "content": "{very_simple_explanation_in_child_friendly_words}",
+              "prompts_for_user": [
+                "{reflective_question_1_about_the_theory}",
+                "{reflective_question_2}"
+              ],
+              "expected_outcome": "Learner understands minimal context to engage in exercises."
+            },
+            {
+              "title": "{lesson_title_exercise_1}",
+              "type": "exercise",
+              "content": "Guided questions and practical tasks only.",
+              "prompts_for_user": [
+                "{exercise_question_1}",
+                "{exercise_question_2}"
+              ],
+              "expected_outcome": "Learner practices and discovers concepts independently.",
+              "hints": [
+                "{hint_1}",
+                "{hint_2}"
+              ]
+            },
+            {
+              "title": "{lesson_title_exercise_2}",
+              "type": "exercise",
+              "content": "Practical application and Socratic questioning.",
+              "prompts_for_user": [
+                "{exercise_question_3}",
+                "{exercise_question_4}"
+              ],
+              "expected_outcome": "Learner demonstrates reasoning and problem-solving without direct answers."
+            }
+          ],
+          "module_summary": {
+            "type": "reflection_quiz",
+            "questions": [
+              "{reflection_question_1}",
+              "{reflection_question_2}"
+            ]
+          }
+        }
+      ],
+      "course_summary": {
+        "final_assessment": [
+          {
+            "title": "Capstone Task",
+            "type": "practical",
+            "content": "Apply the learned material in a scenario using questions, reflection, and active problem-solving.",
+            "expected_outcome": "Learner demonstrates independent reasoning and application skills."
+          }
+        ]
+      }
+    }
+  }
+  
+  

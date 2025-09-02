@@ -1,18 +1,25 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { ChatMessage } from './types';
+import { ChatMessage, Course, ChatType, CourseProgress } from './types';
 
 interface Chat {
   id: string;
   title: string;
   messages: ChatMessage[];
   createdAt: Date;
+  type: ChatType;
+  courseId?: string; // Если это чат курса, то здесь ID курса
+  courseProgress?: CourseProgress; // Прогресс прохождения курса
 }
 
 interface AppState {
   // Чаты
   chats: Chat[];
   currentChatId: string | null;
+  
+  // Курсы
+  courses: Course[];
+  currentCourseId: string | null;
   
   // Методы для работы с чатами
   createNewChat: () => void;
@@ -24,6 +31,14 @@ interface AppState {
   messages: ChatMessage[];
   addMessage: (message: ChatMessage) => void;
   clearMessages: () => void;
+  
+  // Методы для работы с курсами
+  createCourse: (course: Omit<Course, 'id' | 'createdAt' | 'updatedAt'>) => string;
+  selectCourse: (courseId: string) => void;
+  deleteCourse: (courseId: string) => void;
+  updateCourse: (courseId: string, course: Partial<Course>) => void;
+  createCourseChat: (courseId: string) => void;
+  updateCourseProgress: (chatId: string, progress: CourseProgress) => void;
 }
 
 export const useStore = create<AppState>()(
@@ -32,6 +47,8 @@ export const useStore = create<AppState>()(
   chats: [],
   currentChatId: null,
   messages: [],
+  courses: [],
+  currentCourseId: null,
   
   createNewChat: () => {
     const newChat: Chat = {
@@ -39,6 +56,7 @@ export const useStore = create<AppState>()(
       title: 'Новый чат',
       messages: [],
       createdAt: new Date(),
+      type: 'general',
     };
     
     set((state) => ({
@@ -92,6 +110,7 @@ export const useStore = create<AppState>()(
           title: message.content.slice(0, 30) + (message.content.length > 30 ? '...' : ''),
           messages: [message],
           createdAt: new Date(),
+          type: 'general',
         };
         
         return {
@@ -123,12 +142,99 @@ export const useStore = create<AppState>()(
   },
   
   clearMessages: () => set({ messages: [] }),
+  
+  // Методы для работы с курсами
+  createCourse: (course) => {
+    const newCourse: Course = {
+      ...course,
+      id: Date.now().toString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    set((state) => ({
+      courses: [newCourse, ...state.courses],
+      currentCourseId: newCourse.id,
+    }));
+    
+    return newCourse.id;
+  },
+  
+  selectCourse: (courseId: string) => {
+    set({ currentCourseId: courseId });
+  },
+  
+  deleteCourse: (courseId: string) => {
+    set((state) => {
+      const newCourses = state.courses.filter(c => c.id !== courseId);
+      const newCurrentId = state.currentCourseId === courseId 
+        ? (newCourses.length > 0 ? newCourses[0].id : null)
+        : state.currentCourseId;
+      
+      // Удаляем также все чаты, связанные с этим курсом
+      const newChats = state.chats.filter(chat => chat.courseId !== courseId);
+      
+      return {
+        courses: newCourses,
+        currentCourseId: newCurrentId,
+        chats: newChats,
+      };
+    });
+  },
+  
+  updateCourse: (courseId: string, updates: Partial<Course>) => {
+    set((state) => ({
+      courses: state.courses.map(course =>
+        course.id === courseId 
+          ? { ...course, ...updates, updatedAt: new Date() } 
+          : course
+      ),
+    }));
+  },
+  
+  createCourseChat: (courseId: string) => {
+    const course = get().courses.find(c => c.id === courseId);
+    if (!course) return;
+    
+    const newChat: Chat = {
+      id: Date.now().toString(),
+      title: `Обучение: ${course.title}`,
+      messages: [],
+      createdAt: new Date(),
+      type: 'course',
+      courseId: courseId,
+      courseProgress: {
+        courseId: courseId,
+        currentModuleIndex: 0,
+        currentLessonIndex: 0,
+        completedLessons: [],
+      },
+    };
+    
+    set((state) => ({
+      chats: [newChat, ...state.chats],
+      currentChatId: newChat.id,
+      messages: [],
+    }));
+  },
+  
+  updateCourseProgress: (chatId: string, progress: CourseProgress) => {
+    set((state) => ({
+      chats: state.chats.map(chat =>
+        chat.id === chatId && chat.type === 'course'
+          ? { ...chat, courseProgress: progress }
+          : chat
+      ),
+    }));
+  },
     }),
     {
       name: 'learnus-storage',
       partialize: (state) => ({
         chats: state.chats,
         currentChatId: state.currentChatId,
+        courses: state.courses,
+        currentCourseId: state.currentCourseId,
       }),
     }
   )
