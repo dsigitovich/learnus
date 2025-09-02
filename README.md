@@ -1,2 +1,2 @@
-# learnus
+# Socrademy
 ai learning platform
