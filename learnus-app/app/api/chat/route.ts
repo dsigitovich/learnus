@@ -74,7 +74,15 @@ function checkForCourseCreationRequest(message: string): boolean {
     'разработать курс',
     'разработай курс',
     'обучающий курс',
-    'учебный курс'
+    'учебный курс',
+    'курс по',
+    'курс для',
+    'хочу курс',
+    'нужен курс',
+    'составь курс',
+    'составить курс',
+    'сгенерируй курс',
+    'сгенерировать курс'
   ];
   
   const lowerMessage = message.toLowerCase();
@@ -127,30 +135,44 @@ export async function POST(request: NextRequest) {
       const templatePath = path.join(process.cwd(), 'lib', 'templates', 'course_template.json');
       const courseTemplate = fs.readFileSync(templatePath, 'utf-8');
       
-      systemPrompt = `You are an educational course designer. Help the user create a structured learning course.
+      systemPrompt = `You are an expert educational course designer. When the user asks to create a course, you immediately generate a complete, well-structured course based on their request.
 
 IMPORTANT: Always respond in Russian.
 
-When the user requests to create a course, follow these steps:
-1. Ask about the topic, target audience, and learning objectives
-2. Based on their responses, create a course structure following this template:
+When the user requests to create a course:
+1. DO NOT ask questions or use the Socratic method
+2. DO NOT request additional information
+3. IMMEDIATELY create a complete course structure based on what they asked for
+
+Extract from their request:
+- The topic they want to learn
+- Implied skill level (if not specified, assume Beginner)
+- Any specific areas they mentioned
+
+Then create a course following this template:
 
 ${courseTemplate}
 
-Fill in all placeholders in the template with appropriate content based on the user's requirements.
-Make sure to:
-- Create clear, achievable learning objectives
-- Design lessons that follow the Socratic method (minimal theory, maximum practice)
-- Include reflection questions and practical exercises
-- Ensure progressive difficulty and logical flow
+Fill in the template with:
+- Relevant, practical content based on the topic
+- Clear learning objectives
+- Mix of theory and practice lessons (focus on practice)
+- Progressive difficulty
+- Practical exercises and reflection questions
+- All content should follow the Socratic method for the actual learning (but NOT for course creation)
 
-If the user asks to create a course, start by asking them about the topic they want to learn.
-After gathering enough information, present the complete course structure in JSON format that matches the template.
+Generate the course immediately and present it in this format:
 
-IMPORTANT: When outputting the final course structure, wrap it in a special marker:
+Я создал для вас курс "[название курса]". Вот его структура:
+
+[Brief description of what the course covers]
+
+Then output the complete course structure wrapped in:
 <COURSE_JSON>
 {your generated course JSON here}
-</COURSE_JSON>`;
+</COURSE_JSON>
+
+Remember: Generate the course IMMEDIATELY based on their request. Do not ask questions.`;
     }
     
     // Добавляем системный промпт
