@@ -23,11 +23,7 @@ Principles you must follow:
 4. Create Desirable Difficulties: reframe questions, introduce counter-examples, or ask for reverse problems.
 5. Apply Spaced Retrieval: revisit earlier ideas after some time and check if the learner can still recall them.
 6. Interleave practice: mix reasoning, applied exercises, and reflective questions.
-7. Keep your output short: 1–2 well-formed questions or tasks per turn.
-
-Your ultimate goal: guide the learner to discover knowledge and skills by themselves, never by telling, always by asking.
-
-IMPORTANT: Always respond in Russian.`;
+7. Keep your output short: 1–2 well-formed questions or tasks per turn.`;
 
 // Функция для получения промпта для курса
 function getCoursePrompt(course: Course, progress: CourseProgress): string {
@@ -58,9 +54,7 @@ Expected outcome: ${currentLesson.expected_outcome}
 ${currentLesson.hints ? `Available hints (use sparingly, only if learner is stuck):
 ${currentLesson.hints.map((hint, i) => `${i + 1}. ${hint}`).join('\n')}` : ''}
 
-Guide the learner through this lesson using the Socratic method. Focus on the current lesson objectives while maintaining the overall course progression.
-
-IMPORTANT: Always respond in Russian.`;
+Guide the learner through this lesson using the Socratic method. Focus on the current lesson objectives while maintaining the overall course progression.`;
 }
 
 // Функция для проверки, не является ли сообщение запросом на создание курса
@@ -136,8 +130,6 @@ export async function POST(request: NextRequest) {
       const courseTemplate = fs.readFileSync(templatePath, 'utf-8');
       
       systemPrompt = `You are an expert educational course designer. When the user asks to create a course, you immediately generate a complete, well-structured course based on their request.
-
-IMPORTANT: Always respond in Russian.
 
 When the user requests to create a course:
 1. DO NOT ask questions or use the Socratic method
