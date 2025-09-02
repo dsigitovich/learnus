@@ -41,13 +41,22 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
       >
         <div className="flex flex-col h-full w-64">
           {/* Header */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
             <button
               onClick={createNewChat}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 rounded-lg transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 rounded-lg transition-colors"
             >
               <Plus size={20} />
               <span>Новый чат</span>
+            </button>
+            
+            {/* Кнопка закрытия сайдбара в правом верхнем углу */}
+            <button
+              onClick={onToggle}
+              className="ml-2 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              title="Закрыть сайдбар"
+            >
+              <X size={20} />
             </button>
           </div>
 

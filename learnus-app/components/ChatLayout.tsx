@@ -1,24 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Sidebar from './Sidebar';
 import Chat from './Chat';
 
 export default function ChatLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  // Открываем сайдбар по умолчанию на десктопе
-  useEffect(() => {
-    const checkScreenSize = () => {
-      if (window.innerWidth >= 768) {
-        setSidebarOpen(true);
-      }
-    };
-    
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
