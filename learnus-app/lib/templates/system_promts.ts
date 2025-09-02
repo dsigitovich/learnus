@@ -61,3 +61,23 @@ Then output the complete course structure wrapped in:
 </COURSE_JSON>
 
 Remember: Generate the course IMMEDIATELY based on their request. Do not ask questions.`
+
+export const courseKeywords = [
+   'создать курс',
+   'создай курс',
+   'сделать курс',
+   'сделай курс',
+   'новый курс',
+   'разработать курс',
+   'разработай курс',
+   'обучающий курс',
+   'учебный курс',
+   'курс по',
+   'курс для',
+   'хочу курс',
+   'нужен курс',
+   'составь курс',
+   'составить курс',
+   'сгенерируй курс',
+   'сгенерировать курс'
+ ];

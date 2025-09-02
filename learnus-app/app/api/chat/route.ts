@@ -3,7 +3,7 @@ import OpenAI from 'openai';
 import { Course, CourseProgress } from '@/lib/types';
 import * as fs from 'fs';
 import * as path from 'path';
-import { COURSE_CREATION_PROMPT, SOCRATIC_PROMPT } from '@/lib/templates/system_promts';
+import { COURSE_CREATION_PROMPT, courseKeywords, SOCRATIC_PROMPT } from '@/lib/templates/system_promts';
 
 
 // Функция для получения промпта для курса
@@ -40,26 +40,7 @@ Guide the learner through this lesson using the Socratic method. Focus on the cu
 
 // Функция для проверки, не является ли сообщение запросом на создание курса
 function checkForCourseCreationRequest(message: string): boolean {
-  const courseKeywords = [
-    'создать курс',
-    'создай курс',
-    'сделать курс',
-    'сделай курс',
-    'новый курс',
-    'разработать курс',
-    'разработай курс',
-    'обучающий курс',
-    'учебный курс',
-    'курс по',
-    'курс для',
-    'хочу курс',
-    'нужен курс',
-    'составь курс',
-    'составить курс',
-    'сгенерируй курс',
-    'сгенерировать курс'
-  ];
-  
+
   const lowerMessage = message.toLowerCase();
   return courseKeywords.some(keyword => lowerMessage.includes(keyword));
 }
