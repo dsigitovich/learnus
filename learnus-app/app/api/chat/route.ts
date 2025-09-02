@@ -1,33 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import OpenAI from 'openai';
 import { Course, CourseProgress } from '@/lib/types';
 import * as fs from 'fs';
 import * as path from 'path';
 
-// Сократовский промпт
-const SOCRATIC_PROMPT = `You are a Socratic tutor. 
-Your role is to guide the learner to understanding only through questions, critical reflection, and practical tasks. 
-You must never give direct answers, definitions, or lectures. 
-
-Principles you must follow:
-1. Use only guiding questions and thought experiments.
-2. Apply Socratic questioning techniques:
-   - Clarify terms
-   - Probe assumptions
-   - Examine reasons and evidence
-   - Explore alternative views
-   - Consider consequences
-   - Encourage metacognition
-   - Push toward practical application
-3. Use Active Recall: ask the learner to restate or retrieve knowledge rather than providing it.
-4. Create Desirable Difficulties: reframe questions, introduce counter-examples, or ask for reverse problems.
-5. Apply Spaced Retrieval: revisit earlier ideas after some time and check if the learner can still recall them.
-6. Interleave practice: mix reasoning, applied exercises, and reflective questions.
-7. Keep your output short: 1–2 well-formed questions or tasks per turn.
-
-Your ultimate goal: guide the learner to discover knowledge and skills by themselves, never by telling, always by asking.
-
-IMPORTANT: Always respond in Russian.`;
+// Читаем Сократовский промпт из файла
+let SOCRATIC_PROMPT = '';
+try {
+  const promptPath = path.join(process.cwd(), 'lib', 'templates', 'socratic_prompt.txt');
+  SOCRATIC_PROMPT = fs.readFileSync(promptPath, 'utf-8');
+} catch (error) {
+  console.error('Failed to read Socratic prompt:', error);
+  SOCRATIC_PROMPT = `You are a Socratic tutor. Your role is to guide the learner to understanding only through questions. IMPORTANT: Always respond in Russian.`;
+}
 
 // Функция для получения промпта для курса
 function getCoursePrompt(course: Course, progress: CourseProgress): string {
@@ -89,60 +74,98 @@ function checkForCourseCreationRequest(message: string): boolean {
   return courseKeywords.some(keyword => lowerMessage.includes(keyword));
 }
 
-/**
- * POST /api/chat
- * Отправить сообщение в чат и получить ответ от AI
- */
-export async function POST(request: NextRequest) {
-  try {
-    // Проверяем наличие API ключа
-    if (!process.env.OPENAI_API_KEY) {
-      return NextResponse.json(
-        { error: 'OpenAI API key is not configured' },
-        { status: 503 }
-      );
-    }
-    
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-    
-    // Получаем данные
-    const body = await request.json();
-    const { messages, context } = body;
-    
-    if (!messages || !Array.isArray(messages)) {
-      return NextResponse.json(
-        { error: 'Invalid request: messages array is required' },
-        { status: 400 }
-      );
-    }
-    
-    // Проверяем последнее сообщение на запрос создания курса
-    const lastMessage = messages[messages.length - 1];
-    const isCreatingCourse = lastMessage && lastMessage.role === 'user' && checkForCourseCreationRequest(lastMessage.content);
-    
-    let systemPrompt = SOCRATIC_PROMPT;
-    
-    // Если это обучение по курсу, используем специальный промпт
-    if (context && context.type === 'course' && context.course && context.progress) {
-      systemPrompt = getCoursePrompt(context.course, context.progress);
-    }
-    
-    // Если это запрос на создание курса, используем специальный промпт
-    if (isCreatingCourse) {
-      // Читаем шаблон курса
-      const templatePath = path.join(process.cwd(), 'lib', 'templates', 'course_template.json');
-      const courseTemplate = fs.readFileSync(templatePath, 'utf-8');
-      
-      systemPrompt = `You are an expert educational course designer. When the user asks to create a course, you immediately generate a complete, well-structured course based on their request.
+// Промпт для размышлений при создании курса
+const COURSE_CREATION_THOUGHTS_PROMPT = `You are an expert educational course designer. When creating a course, you should think out loud about the process.
 
 IMPORTANT: Always respond in Russian.
 
+First, share your thoughts about:
+1. What topic the user wants to learn
+2. What level might be appropriate
+3. What key modules would be valuable
+4. How to balance theory and practice
+
+Format your thoughts as:
+<THOUGHT>
+[Your thinking process in Russian]
+</THOUGHT>
+
+After sharing 2-3 thoughts about the course structure, then generate the complete course.`;
+
+/**
+ * POST /api/chat
+ * Отправить сообщение в чат и получить ответ от AI через стриминг
+ */
+export async function POST(request: NextRequest) {
+  // Создаём поток для Server-Sent Events
+  const encoder = new TextEncoder();
+  const stream = new TransformStream();
+  const writer = stream.writable.getWriter();
+  
+  // Функция для отправки событий
+  const sendEvent = async (event: string, data: any) => {
+    const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+    await writer.write(encoder.encode(message));
+  };
+  
+  // Запускаем асинхронную обработку
+  (async () => {
+    try {
+      // Проверяем наличие API ключа
+      if (!process.env.OPENAI_API_KEY) {
+        await sendEvent('error', { 
+          error: 'OpenAI API key is not configured',
+          statusCode: 503 
+        });
+        await writer.close();
+        return;
+      }
+      
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+      
+      // Получаем данные
+      const body = await request.json();
+      const { messages, context } = body;
+      
+      if (!messages || !Array.isArray(messages)) {
+        await sendEvent('error', { 
+          error: 'Invalid request: messages array is required',
+          statusCode: 400 
+        });
+        await writer.close();
+        return;
+      }
+      
+      // Проверяем последнее сообщение на запрос создания курса
+      const lastMessage = messages[messages.length - 1];
+      const isCreatingCourse = lastMessage && lastMessage.role === 'user' && checkForCourseCreationRequest(lastMessage.content);
+      
+      let systemPrompt = SOCRATIC_PROMPT;
+      let useStreaming = true;
+      
+      // Если это обучение по курсу, используем специальный промпт
+      if (context && context.type === 'course' && context.course && context.progress) {
+        systemPrompt = getCoursePrompt(context.course, context.progress);
+      }
+      
+      // Если это запрос на создание курса, используем специальный промпт с размышлениями
+      if (isCreatingCourse) {
+        // Читаем шаблон курса
+        const templatePath = path.join(process.cwd(), 'lib', 'templates', 'course_template.json');
+        const courseTemplate = fs.readFileSync(templatePath, 'utf-8');
+        
+        // Сначала отправляем размышления
+        await sendEvent('thought', { 
+          content: '🤔 Анализирую ваш запрос на создание курса...' 
+        });
+        
+        systemPrompt = `${COURSE_CREATION_THOUGHTS_PROMPT}
+
 When the user requests to create a course:
-1. DO NOT ask questions or use the Socratic method
-2. DO NOT request additional information
-3. IMMEDIATELY create a complete course structure based on what they asked for
+1. First share 2-3 thoughts about the course design
+2. Then create a complete course structure
 
 Extract from their request:
 - The topic they want to learn
@@ -159,9 +182,8 @@ Fill in the template with:
 - Mix of theory and practice lessons (focus on practice)
 - Progressive difficulty
 - Practical exercises and reflection questions
-- All content should follow the Socratic method for the actual learning (but NOT for course creation)
 
-Generate the course immediately and present it in this format:
+After your thoughts, generate the course and present it in this format:
 
 Я создал для вас курс "[название курса]". Вот его структура:
 
@@ -170,61 +192,111 @@ Generate the course immediately and present it in this format:
 Then output the complete course structure wrapped in:
 <COURSE_JSON>
 {your generated course JSON here}
-</COURSE_JSON>
-
-Remember: Generate the course IMMEDIATELY based on their request. Do not ask questions.`;
-    }
-    
-    // Добавляем системный промпт
-    const messagesWithSystem = [
-      { role: 'system', content: systemPrompt },
-      ...messages
-    ];
-    
-    // Отправляем запрос к OpenAI
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: messagesWithSystem,
-      temperature: 0.7,
-      max_tokens: 2000,
-    });
-    
-    const reply = completion.choices[0]?.message?.content || 'Извините, не удалось получить ответ.';
-    
-    // Проверяем, содержит ли ответ JSON курса
-    const courseJsonMatch = reply.match(/<COURSE_JSON>([\s\S]*?)<\/COURSE_JSON>/);
-    let courseData = null;
-    
-    if (courseJsonMatch) {
-      try {
-        const courseJson = courseJsonMatch[1].trim();
-        const parsedData = JSON.parse(courseJson);
-        courseData = parsedData.course;
-      } catch (error) {
-        console.error('Failed to parse course JSON:', error);
+</COURSE_JSON>`;
       }
+      
+      // Добавляем системный промпт
+      const messagesWithSystem = [
+        { role: 'system', content: systemPrompt },
+        ...messages
+      ];
+      
+      // Создаём стриминговый запрос к OpenAI
+      const stream = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: messagesWithSystem as any,
+        temperature: 0.7,
+        max_tokens: 2000,
+        stream: true,
+      });
+      
+      let fullResponse = '';
+      let currentThought = '';
+      let inThought = false;
+      
+      // Обрабатываем стрим
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || '';
+        fullResponse += content;
+        
+        // Если создаём курс, обрабатываем размышления
+        if (isCreatingCourse) {
+          // Проверяем начало размышления
+          if (content.includes('<THOUGHT>')) {
+            inThought = true;
+            currentThought = content.split('<THOUGHT>')[1] || '';
+          } else if (inThought && content.includes('</THOUGHT>')) {
+            // Завершаем размышление
+            currentThought += content.split('</THOUGHT>')[0];
+            await sendEvent('thought', { content: currentThought.trim() });
+            inThought = false;
+            currentThought = '';
+            // Отправляем остаток контента как обычный текст
+            const remaining = content.split('</THOUGHT>')[1];
+            if (remaining) {
+              await sendEvent('content', { content: remaining });
+            }
+          } else if (inThought) {
+            // Продолжаем собирать размышление
+            currentThought += content;
+          } else {
+            // Обычный контент
+            await sendEvent('content', { content });
+          }
+        } else {
+          // Обычный стриминг для не-курсовых запросов
+          await sendEvent('content', { content });
+        }
+      }
+      
+      // Проверяем, содержит ли ответ JSON курса
+      const courseJsonMatch = fullResponse.match(/<COURSE_JSON>([\s\S]*?)<\/COURSE_JSON>/);
+      let courseData = null;
+      
+      if (courseJsonMatch) {
+        try {
+          const courseJson = courseJsonMatch[1].trim();
+          const parsedData = JSON.parse(courseJson);
+          courseData = parsedData.course;
+          
+          // Отправляем событие о создании курса
+          await sendEvent('course', { course: courseData });
+        } catch (error) {
+          console.error('Failed to parse course JSON:', error);
+          await sendEvent('error', { error: 'Failed to parse course structure' });
+        }
+      }
+      
+      // Завершаем стрим
+      await sendEvent('done', { 
+        reply: fullResponse.replace(/<COURSE_JSON>[\s\S]*?<\/COURSE_JSON>/, '').replace(/<THOUGHT>[\s\S]*?<\/THOUGHT>/g, '').trim()
+      });
+      
+    } catch (error) {
+      console.error('Chat API error:', error);
+      
+      if (error instanceof Error) {
+        await sendEvent('error', { 
+          error: error.message,
+          statusCode: 500 
+        });
+      } else {
+        await sendEvent('error', { 
+          error: 'Internal server error',
+          statusCode: 500 
+        });
+      }
+    } finally {
+      await writer.close();
     }
-    
-    return NextResponse.json({
-      data: {
-        reply: reply.replace(/<COURSE_JSON>[\s\S]*?<\/COURSE_JSON>/, '').trim(),
-        role: 'assistant',
-        course: courseData,
-      },
-    });
-  } catch (error) {
-    console.error('Chat API error:', error);
-    
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      );
-    }
-    
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+  })();
+  
+  // Возвращаем поток с правильными заголовками для SSE
+  return new Response(stream.readable, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    },
+  });
 }
