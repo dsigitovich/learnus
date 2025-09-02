@@ -23,13 +23,6 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
-  // Создаем первый чат, если их нет
-  useEffect(() => {
-    if (chats.length === 0) {
-      createNewChat();
-    }
-  }, []);
-
   return (
     <>
       {/* Overlay для мобильных устройств */}
@@ -42,16 +35,16 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
 
       {/* Sidebar */}
       <div
-        className={`fixed md:relative z-50 h-full bg-gray-900 text-white transition-all duration-300 ${
+        className={`fixed md:relative z-50 h-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ${
           isOpen ? 'w-64' : 'w-0 md:w-0'
         } overflow-hidden`}
       >
         <div className="flex flex-col h-full w-64">
           {/* Header */}
-          <div className="p-4 border-b border-gray-700">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <button
               onClick={createNewChat}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 rounded-lg transition-colors"
             >
               <Plus size={20} />
               <span>Новый чат</span>
@@ -65,8 +58,8 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                 key={chat.id}
                 className={`group flex items-center gap-2 px-3 py-2 mb-1 rounded-lg cursor-pointer transition-colors ${
                   currentChatId === chat.id
-                    ? 'bg-gray-700'
-                    : 'hover:bg-gray-800'
+                    ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
                 onClick={() => selectChat(chat.id)}
               >
@@ -79,7 +72,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                     e.stopPropagation();
                     deleteChat(chat.id);
                   }}
-                  className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-600 rounded transition-all"
+                  className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-all"
                 >
                   <Trash2 size={16} />
                 </button>
@@ -88,33 +81,31 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
           </div>
 
           {/* Footer */}
-          <div className="p-4 border-t border-gray-700">
-            <div className="text-xs text-gray-400 text-center">
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
               Learnus AI Assistant
             </div>
           </div>
         </div>
       </div>
 
-      {/* Toggle button */}
+      {/* Toggle button - только для мобильных устройств */}
       <button
         onClick={onToggle}
-        className={`fixed top-4 ${
-          isOpen ? 'left-64' : 'left-4'
-        } z-50 p-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-all duration-300 md:hidden`}
-      >
-        {isOpen ? <X size={20} /> : <Menu size={20} />}
-      </button>
-
-      {/* Desktop toggle button */}
-      <button
-        onClick={onToggle}
-        className={`hidden md:block fixed top-4 ${
-          isOpen ? 'left-64' : 'left-4'
-        } z-40 p-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-all duration-300`}
+        className={`fixed top-4 left-4 z-50 p-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-all duration-300 md:hidden`}
       >
         <Menu size={20} />
       </button>
+
+      {/* Desktop toggle button - только когда сайдбар закрыт */}
+      {!isOpen && (
+        <button
+          onClick={onToggle}
+          className="hidden md:block fixed top-4 left-4 z-40 p-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-all duration-300"
+        >
+          <Menu size={20} />
+        </button>
+      )}
     </>
   );
 }
