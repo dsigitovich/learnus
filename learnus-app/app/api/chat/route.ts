@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
     const courseJsonMatch = reply.match(/<COURSE_JSON>([\s\S]*?)<\/COURSE_JSON>/);
     let courseData = null;
     
-    if (courseJsonMatch) {
+    if (courseJsonMatch && courseJsonMatch[1]) {
       try {
         const courseJson = courseJsonMatch[1].trim();
         const parsedData = JSON.parse(courseJson);

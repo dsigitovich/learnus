@@ -10,7 +10,7 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  const { messages, addMessage, currentChatId, chats, courses, updateCourseProgress, createCourse } = useStore();
+  const { messages, addMessage, currentChatId, chats, courses, createCourse } = useStore();
   
   // Получаем информацию о текущем чате и курсе
   const currentChat = currentChatId ? chats.find(c => c.id === currentChatId) : null;
@@ -74,7 +74,7 @@ export default function Chat() {
         
         // Если в ответе есть данные курса, создаем новый курс
         if (data.data.course) {
-          const courseId = createCourse(data.data.course);
+          createCourse(data.data.course);
           addMessage({
             role: 'system',
             content: `✅ Курс "${data.data.course.title}" успешно создан! Вы можете найти его в разделе "Курсы" в боковой панели.`,

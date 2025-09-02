@@ -80,7 +80,7 @@ export const useStore = create<AppState>()(
     set((state) => {
       const newChats = state.chats.filter(c => c.id !== chatId);
       const newCurrentId = state.currentChatId === chatId 
-        ? (newChats.length > 0 ? newChats[0].id : null)
+        ? (newChats.length > 0 ? newChats[0]?.id || null : null)
         : state.currentChatId;
       
       const currentChat = newCurrentId ? newChats.find(c => c.id === newCurrentId) : null;
@@ -168,7 +168,7 @@ export const useStore = create<AppState>()(
     set((state) => {
       const newCourses = state.courses.filter(c => c.id !== courseId);
       const newCurrentId = state.currentCourseId === courseId 
-        ? (newCourses.length > 0 ? newCourses[0].id : null)
+        ? (newCourses.length > 0 ? newCourses[0]?.id || null : null)
         : state.currentCourseId;
       
       // Удаляем также все чаты, связанные с этим курсом
