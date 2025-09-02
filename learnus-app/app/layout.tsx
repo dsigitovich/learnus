@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Learnus - Обучение с помощью AI",
+  title: "Socrademy - Обучение с помощью AI",
   description: "Платформа для создания и прохождения учебных программ с помощью искусственного интеллекта",
 };
 

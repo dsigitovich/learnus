@@ -1,5 +1,5 @@
 {
-  "name": "learnus-app",
+  "name": "socrademy-app",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,7 +9,7 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "db:init": "tsx scripts/init-db.ts",
-    "db:reset": "rm -f learnus.db && npm run db:init"
+    "db:reset": "rm -f socrademy.db && npm run db:init"
   },
   "dependencies": {
     "@types/sqlite3": "^3.1.11",

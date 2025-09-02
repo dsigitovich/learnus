@@ -79,7 +79,7 @@ export default function Chat() {
       <div className="flex-1 overflow-y-auto px-6 py-4">
         {messages.length === 0 && (
           <div className="text-center text-gray-600 dark:text-gray-300 mt-20">
-            <h1 className="text-4xl font-bold mb-4 text-gray-800 dark:text-white">Learnus</h1>
+            <h1 className="text-4xl font-bold mb-4 text-gray-800 dark:text-white">Socrademy</h1>
             <p className="text-lg text-gray-700 dark:text-gray-200">Начните обучение с помощью AI</p>
             <p className="mt-2 text-gray-600 dark:text-gray-300">Задайте вопрос, чтобы начать обучение</p>
           </div>

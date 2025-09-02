@@ -1,4 +1,4 @@
-# Learnus - Минимальный чат с AI
+# Socrademy - Минимальный чат с AI
 
 Простое приложение для чата с AI на основе Next.js и OpenAI API.
 
