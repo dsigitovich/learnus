@@ -5,6 +5,8 @@ import { Send, BookOpen, GraduationCap } from 'lucide-react';
 import { useStore } from '@/lib/store';
 import { ChatMessage } from '@/lib/types';
 import ExpandableReasoning from './ExpandableReasoning';
+import InlineReasoning from './InlineReasoning';
+import LoadingReasoning from './LoadingReasoning';
 
 export default function Chat() {
   const [input, setInput] = useState('');
@@ -68,10 +70,13 @@ export default function Chat() {
           });
         }
       } else if (data.data && data.data.reply) {
+        // Определяем, является ли это созданием курса
+        const isCourseCreation = !!data.data.course;
+        
         addMessage({
           role: 'assistant',
           content: data.data.reply,
-          reasoning: data.data.reasoning,
+          reasoning: isCourseCreation ? data.data.reasoning : undefined, // reasoning только для создания курса
         });
         
         // Если в ответе есть данные курса, создаем новый курс
@@ -79,7 +84,7 @@ export default function Chat() {
           createCourse(data.data.course);
           addMessage({
             role: 'system',
-            content: `✅ Курс "${data.data.course.title}" успешно создан! Вы можете найти его в разделе "Курсы" в боковой панели.`,
+            content: `✅ Курс "${data.data.course.title}" успешно создан!`,
           });
         }
       }
@@ -156,7 +161,7 @@ export default function Chat() {
             >
               <div className="whitespace-pre-wrap">{message.content}</div>
               {message.role === 'assistant' && message.reasoning && (
-                <ExpandableReasoning reasoning={message.reasoning} />
+                <InlineReasoning reasoning={message.reasoning} />
               )}
             </div>
           </div>
@@ -164,13 +169,7 @@ export default function Chat() {
         
         {loading && (
           <div className="text-left mb-4">
-            <div className="inline-block bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-lg shadow-sm">
-              <div className="flex space-x-2">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
-              </div>
-            </div>
+            <LoadingReasoning />
           </div>
         )}
         

@@ -154,7 +154,8 @@ export const useStore = create<AppState>()(
     
     set((state) => ({
       courses: [newCourse, ...state.courses],
-      currentCourseId: newCourse.id,
+      // Убираем автоматический выбор созданного курса
+      // currentCourseId: newCourse.id,
     }));
     
     return newCourse.id;

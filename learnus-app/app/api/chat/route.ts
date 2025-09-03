@@ -76,6 +76,12 @@ export async function POST(request: NextRequest) {
     const lastMessage = messages[messages.length - 1];
     const isCreatingCourse = lastMessage && lastMessage.role === 'user' && checkForCourseCreationRequest(lastMessage.content);
     
+    console.log('🔍 Debug info:', {
+      lastMessage: lastMessage?.content,
+      isCreatingCourse,
+      hasOpenAIKey: !!process.env.OPENAI_API_KEY
+    });
+    
     let systemPrompt = SOCRATIC_PROMPT;
     
     // Если это обучение по курсу, используем специальный промпт
@@ -85,8 +91,8 @@ export async function POST(request: NextRequest) {
     
     // Если это запрос на создание курса, используем специальный промпт
     if (isCreatingCourse) {
-
       systemPrompt = COURSE_CREATION_PROMPT;
+      console.log('📚 Using course creation prompt');
     }
     
     // Добавляем системный промпт
@@ -104,6 +110,10 @@ export async function POST(request: NextRequest) {
     });
     
     const reply = completion.choices[0]?.message?.content || 'Извините, не удалось получить ответ.';
+    
+    console.log('🤖 Raw AI response length:', reply.length);
+    console.log('🔍 Contains COURSE_JSON:', reply.includes('<COURSE_JSON>'));
+    console.log('🔍 Contains REASONING_STEPS:', reply.includes('<REASONING_STEPS>'));
     
     // Проверяем, содержит ли ответ JSON курса
     const courseJsonMatch = reply.match(/<COURSE_JSON>([\s\S]*?)<\/COURSE_JSON>/);
@@ -126,10 +136,41 @@ export async function POST(request: NextRequest) {
     if (reasoningMatch && reasoningMatch[1]) {
       try {
         const reasoningJson = reasoningMatch[1].trim();
+        console.log('🔍 Raw reasoning JSON:', reasoningJson);
         const parsedReasoning = JSON.parse(reasoningJson);
         reasoningSteps = Array.isArray(parsedReasoning) ? parsedReasoning : [];
+        console.log('✅ Reasoning steps parsed successfully:', reasoningSteps.length);
       } catch (error) {
-        console.error('Failed to parse reasoning steps JSON:', error);
+        console.error('❌ Failed to parse reasoning steps JSON:', error);
+        console.log('🔍 Raw reasoning content that failed to parse:', reasoningMatch[1]);
+      }
+    } else {
+      console.log('❌ No REASONING_STEPS found in response');
+      console.log('🔍 Response preview (first 200 chars):', reply.substring(0, 200));
+      
+      // Fallback: создаем базовые reasoning steps только для создания курса
+      const isCourseCreation = reply.includes('<COURSE_JSON>');
+      if (isCourseCreation) {
+        reasoningSteps = [
+          {
+            id: 'fallback1',
+            description: 'Проанализировал запрос пользователя',
+            emoji: '🔍'
+          },
+          {
+            id: 'fallback2', 
+            description: 'Сформулировал ответ на основе контекста',
+            emoji: '💭'
+          },
+          {
+            id: 'fallback3',
+            description: 'Добавил следующий вопрос для продолжения обучения',
+            emoji: '➡️'
+          }
+        ];
+        console.log('⚠️ Using fallback reasoning steps for course creation:', reasoningSteps.length);
+      } else {
+        console.log('ℹ️ No fallback reasoning steps needed for regular message');
       }
     }
     
@@ -138,6 +179,13 @@ export async function POST(request: NextRequest) {
       .replace(/<COURSE_JSON>[\s\S]*?<\/COURSE_JSON>/, '')
       .replace(/<REASONING_STEPS>[\s\S]*?<\/REASONING_STEPS>/, '')
       .trim();
+    
+    console.log('📤 Final response data:', {
+      replyLength: cleanReply.length,
+      hasCourse: !!courseData,
+      hasReasoning: reasoningSteps.length > 0,
+      reasoningCount: reasoningSteps.length
+    });
     
     return NextResponse.json({
       data: {
