@@ -22,7 +22,7 @@ interface AppState {
   currentCourseId: string | null;
   
   // Методы для работы с чатами
-  createNewChat: () => void;
+  createGeneralChat: () => void;
   selectChat: (chatId: string) => void;
   deleteChat: (chatId: string) => void;
   updateChatTitle: (chatId: string, title: string) => void;
@@ -50,10 +50,11 @@ export const useStore = create<AppState>()(
   courses: [],
   currentCourseId: null,
   
-  createNewChat: () => {
+
+  createGeneralChat: () => {
     const newChat: Chat = {
       id: Date.now().toString(),
-      title: 'Новый чат',
+      title: 'Общий чат',
       messages: [],
       createdAt: new Date(),
       type: 'general',
@@ -103,11 +104,11 @@ export const useStore = create<AppState>()(
   
   addMessage: (message: ChatMessage) => {
     set((state) => {
-      // Если нет активного чата, создаем новый
-      if (!state.currentChatId) {
+      // Если нет активного чата и это сообщение пользователя о создании курса, создаем временный чат
+      if (!state.currentChatId && message.role === 'user') {
         const newChat: Chat = {
           id: Date.now().toString(),
-          title: message.content.slice(0, 30) + (message.content.length > 30 ? '...' : ''),
+          title: 'Создание курса',
           messages: [message],
           createdAt: new Date(),
           type: 'general',
@@ -120,16 +121,16 @@ export const useStore = create<AppState>()(
         };
       }
       
+      if (!state.currentChatId) {
+        console.warn('Нет активного чата.');
+        return state;
+      }
+      
       // Обновляем существующий чат
       const updatedMessages = [...state.messages, message];
       const updatedChats = state.chats.map(chat => {
         if (chat.id === state.currentChatId) {
-          // Обновляем заголовок чата первым сообщением пользователя
-          const newTitle = chat.messages.length === 0 && message.role === 'user'
-            ? message.content.slice(0, 30) + (message.content.length > 30 ? '...' : '')
-            : chat.title;
-          
-          return { ...chat, messages: updatedMessages, title: newTitle };
+          return { ...chat, messages: updatedMessages };
         }
         return chat;
       });
@@ -157,6 +158,9 @@ export const useStore = create<AppState>()(
       currentCourseId: newCourse.id,
     }));
     
+    // Автоматически создаем чат для нового курса
+    get().createCourseChat(newCourse.id);
+    
     return newCourse.id;
   },
   
@@ -171,13 +175,22 @@ export const useStore = create<AppState>()(
         ? (newCourses.length > 0 ? newCourses[0]?.id || null : null)
         : state.currentCourseId;
       
-      // Удаляем также все чаты, связанные с этим курсом
+      // Удаляем также чат, связанный с этим курсом
       const newChats = state.chats.filter(chat => chat.courseId !== courseId);
+      const deletedChat = state.chats.find(chat => chat.courseId === courseId);
+      
+      // Если удален текущий чат, выбираем первый доступный чат
+      let newCurrentChatId = state.currentChatId;
+      if (deletedChat && state.currentChatId === deletedChat.id) {
+        newCurrentChatId = newChats.length > 0 ? newChats[0].id : null;
+      }
       
       return {
         courses: newCourses,
         currentCourseId: newCurrentId,
         chats: newChats,
+        currentChatId: newCurrentChatId,
+        messages: newCurrentChatId ? newChats.find(c => c.id === newCurrentChatId)?.messages || [] : [],
       };
     });
   },
@@ -195,6 +208,14 @@ export const useStore = create<AppState>()(
   createCourseChat: (courseId: string) => {
     const course = get().courses.find(c => c.id === courseId);
     if (!course) return;
+    
+    // Проверяем, нет ли уже чата для этого курса
+    const existingChat = get().chats.find(c => c.courseId === courseId);
+    if (existingChat) {
+      // Если чат уже существует, просто выбираем его
+      get().selectChat(existingChat.id);
+      return;
+    }
     
     const newChat: Chat = {
       id: Date.now().toString(),

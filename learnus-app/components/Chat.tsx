@@ -10,7 +10,7 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  const { messages, addMessage, currentChatId, chats, courses, createCourse } = useStore();
+  const { messages, addMessage, currentChatId, chats, courses, createCourse, deleteChat } = useStore();
   
   // Получаем информацию о текущем чате и курсе
   const currentChat = currentChatId ? chats.find(c => c.id === currentChatId) : null;
@@ -26,7 +26,7 @@ export default function Chat() {
   }, [messages]);
   
   const sendMessage = async () => {
-    if (!input.trim() || loading) return;
+    if (!input.trim() || loading || !currentChatId) return;
     
     const userMessage: ChatMessage = {
       role: 'user',
@@ -74,11 +74,14 @@ export default function Chat() {
         
         // Если в ответе есть данные курса, создаем новый курс
         if (data.data.course) {
-          createCourse(data.data.course);
-          addMessage({
-            role: 'system',
-            content: `✅ Курс "${data.data.course.title}" успешно создан! Вы можете найти его в разделе "Курсы" в боковой панели.`,
-          });
+          const courseId = createCourse(data.data.course);
+          
+          // Если это был временный чат для создания курса, удаляем его
+          if (currentChat?.type === 'general' && currentChat?.title === 'Создание курса') {
+            setTimeout(() => {
+              deleteChat(currentChatId);
+            }, 100);
+          }
         }
       }
     } catch (error) {
@@ -92,6 +95,35 @@ export default function Chat() {
     }
   };
   
+  // Если нет активного чата
+  if (!currentChatId) {
+    return (
+      <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 items-center justify-center">
+        <div className="text-center px-4">
+          <BookOpen size={64} className="mx-auto mb-4 text-gray-400" />
+          <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            Добро пожаловать в Learnus!
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            Для начала работы выберите существующий курс в боковой панели
+            <br />
+            или создайте новый курс, написав в чате "создай курс по..."
+          </p>
+          <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+            <p className="text-sm text-gray-600 dark:text-gray-400 text-left">
+              Примеры запросов:
+            </p>
+            <ul className="mt-2 space-y-1 text-sm text-gray-700 dark:text-gray-300 text-left">
+              <li>• Создай курс по логике для начинающих</li>
+              <li>• Создай курс по программированию на Python</li>
+              <li>• Создай курс по математическому анализу</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900">
       {/* Заголовок для курса */}
