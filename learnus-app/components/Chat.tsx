@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Send, BookOpen, GraduationCap } from 'lucide-react';
 import { useStore } from '@/lib/store';
 import { ChatMessage } from '@/lib/types';
+import ExpandableReasoning from './ExpandableReasoning';
 
 export default function Chat() {
   const [input, setInput] = useState('');
@@ -70,6 +71,7 @@ export default function Chat() {
         addMessage({
           role: 'assistant',
           content: data.data.reply,
+          reasoning: data.data.reasoning,
         });
         
         // Если в ответе есть данные курса, создаем новый курс
@@ -152,7 +154,10 @@ export default function Chat() {
                   : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 shadow-sm'
               }`}
             >
-              {message.content}
+              <div className="whitespace-pre-wrap">{message.content}</div>
+              {message.role === 'assistant' && message.reasoning && (
+                <ExpandableReasoning reasoning={message.reasoning} />
+              )}
             </div>
           </div>
         ))}

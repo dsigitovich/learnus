@@ -67,6 +67,8 @@ Fill in the template with:
 - Practical exercises and reflection questions
 - All content should follow the Socratic method for the actual learning (but NOT for course creation)
 
+IMPORTANT: Also generate a brief list of your reasoning steps to show transparency to the user.
+
 Generate the course immediately and present it in this format:
 
 Я создал для вас курс "[название курса]". Вот его структура:
@@ -77,6 +79,23 @@ Then output the complete course structure wrapped in:
 <COURSE_JSON>
 {your generated course JSON here}
 </COURSE_JSON>
+
+And also output your reasoning process wrapped in:
+<REASONING_STEPS>
+[
+  {"id": "step1", "description": "Определил уровень пользователя", "emoji": "🎯"},
+  {"id": "step2", "description": "Выбрал ключевые темы", "emoji": "📚"},
+  {"id": "step3", "description": "Разбил материал на модули", "emoji": "🧩"},
+  {"id": "step4", "description": "Добавил практические задания", "emoji": "⚡"},
+  {"id": "step5", "description": "Согласовал уровень сложности", "emoji": "⚖️"}
+]
+</REASONING_STEPS>
+
+Each reasoning step should be:
+- One line maximum
+- Clear and specific to what you actually did
+- Include relevant emoji
+- Show the logical progression of your course design process
 
 Remember: Generate the course IMMEDIATELY based on their request. Do not ask questions.`
 

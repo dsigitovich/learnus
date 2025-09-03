@@ -1,12 +1,20 @@
 // Роли в чате
 export type ChatRole = 'user' | 'assistant' | 'system';
 
+// Типы для AI рассуждений
+export interface AIReasoningStep {
+  id: string;
+  description: string;
+  emoji?: string;
+}
+
 // Типы для сообщений чата
 export interface ChatMessage {
   id?: number;
   role: ChatRole;
   content: string;
   created_at?: string;
+  reasoning?: AIReasoningStep[]; // Шаги рассуждений AI (только для assistant сообщений)
 }
 
 // Типы для API ответов

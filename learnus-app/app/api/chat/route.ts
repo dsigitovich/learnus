@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import { Course, CourseProgress } from '@/lib/types';
+import { Course, CourseProgress, AIReasoningStep } from '@/lib/types';
 import { COURSE_CREATION_PROMPT, courseKeywords, SOCRATIC_PROMPT } from '@/lib/templates/system_promts';
 
 
@@ -119,11 +119,32 @@ export async function POST(request: NextRequest) {
       }
     }
     
+    // Проверяем, содержит ли ответ шаги рассуждений
+    const reasoningMatch = reply.match(/<REASONING_STEPS>([\s\S]*?)<\/REASONING_STEPS>/);
+    let reasoningSteps: AIReasoningStep[] = [];
+    
+    if (reasoningMatch && reasoningMatch[1]) {
+      try {
+        const reasoningJson = reasoningMatch[1].trim();
+        const parsedReasoning = JSON.parse(reasoningJson);
+        reasoningSteps = Array.isArray(parsedReasoning) ? parsedReasoning : [];
+      } catch (error) {
+        console.error('Failed to parse reasoning steps JSON:', error);
+      }
+    }
+    
+    // Очищаем ответ от служебных тегов
+    const cleanReply = reply
+      .replace(/<COURSE_JSON>[\s\S]*?<\/COURSE_JSON>/, '')
+      .replace(/<REASONING_STEPS>[\s\S]*?<\/REASONING_STEPS>/, '')
+      .trim();
+    
     return NextResponse.json({
       data: {
-        reply: reply.replace(/<COURSE_JSON>[\s\S]*?<\/COURSE_JSON>/, '').trim(),
+        reply: cleanReply,
         role: 'assistant',
         course: courseData,
+        reasoning: reasoningSteps.length > 0 ? reasoningSteps : undefined,
       },
     });
   } catch (error) {
