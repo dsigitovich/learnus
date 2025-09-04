@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, Trash2, BookOpen, ChevronRight, ChevronDown } from 'lucide-react';
 import { useStore } from '@/lib/store';
+import { useAuth } from '@/hooks/useAuth';
+import { UserMenu } from '@/components/auth/UserMenu';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -22,6 +25,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
   } = useStore();
   const [isMobile, setIsMobile] = useState(false);
   const [expandedCourses, setExpandedCourses] = useState<Set<string>>(new Set());
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -189,9 +193,21 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
               </div>
           </div>
 
-          {/* Footer */}
+          {/* Footer с информацией о пользователе */}
           <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
+            {isAuthenticated && user ? (
+              <div className="flex items-center justify-between">
+                <UserMenu />
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="text-xs text-gray-500 dark:text-gray-400 text-center mb-2">
+                  Войдите для сохранения прогресса
+                </div>
+                <GoogleSignInButton />
+              </div>
+            )}
+            <div className="text-xs text-gray-500 dark:text-gray-400 text-center mt-3">
               Learnus AI Assistant
             </div>
           </div>

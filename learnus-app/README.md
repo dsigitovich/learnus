@@ -1,6 +1,6 @@
-# Socrademy - Минимальный чат с AI
+# LearnUs - Платформа для обучения с помощью AI
 
-Простое приложение для чата с AI на основе Next.js и OpenAI API.
+Образовательная платформа с AI-помощником, поддержкой курсов и аутентификацией через Google.
 
 ## Установка
 
@@ -10,15 +10,31 @@
 npm install
 ```
 
-3. Создайте файл `.env.local` и добавьте ваш OpenAI API ключ:
+3. Создайте файл `.env.local` на основе примера:
 ```bash
 cp .env.local.example .env.local
 ```
 
-Отредактируйте `.env.local` и добавьте ваш ключ:
+4. Настройте переменные окружения в `.env.local`:
 ```
-OPENAI_API_KEY=your-actual-api-key
+# OpenAI
+OPENAI_API_KEY=your-openai-api-key
+
+# NextAuth
+NEXTAUTH_SECRET=your-secret-key-here
+NEXTAUTH_URL=http://localhost:3000
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
 ```
+
+5. Инициализируйте базу данных:
+```bash
+node scripts/init-db.js
+```
+
+6. Настройте Google OAuth (см. [docs/setup-google-oauth.md](docs/setup-google-oauth.md))
 
 ## Запуск
 
@@ -30,14 +46,43 @@ npm run dev
 
 ## Функции
 
-- Чат с AI помощником
-- Сократовский метод обучения (AI задает наводящие вопросы)
-- Минималистичный интерфейс
+- **Аутентификация через Google OAuth** - безопасный вход с помощью Google аккаунта
+- **Персональные профили** - настройка уровня знаний и интересов
+- **AI помощник** - интеллектуальный чат-бот для обучения
+- **Создание курсов** - автоматическая генерация учебных программ
+- **Интерактивное обучение** - пошаговое прохождение уроков
+- **Сократовский метод** - AI задает наводящие вопросы для лучшего понимания
+- **Сохранение прогресса** - все данные сохраняются в профиле пользователя
+- **Темная тема** - поддержка светлой и темной темы
 
 ## Технологии
 
-- Next.js 15
-- TypeScript
-- Tailwind CSS
-- OpenAI API
-- Zustand для управления состоянием
+- **Next.js 15** - React фреймворк
+- **TypeScript** - типизированный JavaScript
+- **Tailwind CSS** - утилитарный CSS фреймворк
+- **NextAuth.js** - аутентификация для Next.js
+- **Google OAuth 2.0** - безопасная авторизация
+- **SQLite + Better-SQLite3** - локальная база данных
+- **OpenAI API** - искусственный интеллект
+- **Zustand** - управление состоянием
+
+## Структура проекта
+
+```
+learnus-app/
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   │   ├── auth/         # NextAuth endpoints
+│   │   └── chat/         # Chat API
+│   ├── auth/             # Auth pages
+│   └── profile/          # User profile
+├── components/            # React компоненты
+│   └── auth/             # Auth компоненты
+├── lib/                   # Утилиты и конфигурация
+│   ├── auth/             # Auth конфигурация
+│   ├── db/               # База данных
+│   └── types/            # TypeScript типы
+├── hooks/                 # React hooks
+├── scripts/              # Утилиты
+└── docs/                 # Документация
+```

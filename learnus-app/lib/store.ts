@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { ChatMessage, Course, ChatType, CourseProgress } from './types';
+import { ChatMessage, Course, ChatType, CourseProgress, User, AuthState } from './types';
 
 interface Chat {
   id: string;
@@ -10,9 +10,10 @@ interface Chat {
   type: ChatType;
   courseId?: string; // Если это чат курса, то здесь ID курса
   courseProgress?: CourseProgress; // Прогресс прохождения курса
+  userId?: string; // ID пользователя-владельца чата
 }
 
-interface AppState {
+interface AppState extends AuthState {
   // Чаты
   chats: Chat[];
   currentChatId: string | null;
@@ -39,6 +40,11 @@ interface AppState {
   updateCourse: (courseId: string, course: Partial<Course>) => void;
   createCourseChat: (courseId: string) => void;
   updateCourseProgress: (chatId: string, progress: CourseProgress) => void;
+  
+  // Методы для работы с аутентификацией
+  setUser: (user: User | null) => void;
+  setAuthLoading: (isLoading: boolean) => void;
+  signOut: () => void;
 }
 
 export const useStore = create<AppState>()(
@@ -49,6 +55,11 @@ export const useStore = create<AppState>()(
   messages: [],
   courses: [],
   currentCourseId: null,
+  
+  // Состояние аутентификации
+  user: null,
+  isAuthenticated: false,
+  isLoading: true,
   
 
   createGeneralChat: () => {
@@ -247,6 +258,33 @@ export const useStore = create<AppState>()(
           : chat
       ),
     }));
+  },
+  
+  // Методы аутентификации
+  setUser: (user: User | null) => {
+    set({
+      user,
+      isAuthenticated: !!user,
+      isLoading: false,
+    });
+  },
+  
+  setAuthLoading: (isLoading: boolean) => {
+    set({ isLoading });
+  },
+  
+  signOut: () => {
+    set({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+      // Очищаем пользовательские данные
+      chats: [],
+      currentChatId: null,
+      messages: [],
+      courses: [],
+      currentCourseId: null,
+    });
   },
     }),
     {

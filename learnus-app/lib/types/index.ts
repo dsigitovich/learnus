@@ -74,3 +74,55 @@ export interface CourseProgress {
   currentLessonIndex: number;
   completedLessons: string[]; // ID уроков в формате "module-index:lesson-index"
 }
+
+// Типы для аутентификации
+export interface User {
+  id: string;
+  googleId: string;
+  email: string;
+  name: string;
+  avatarUrl?: string;
+  bio?: string;
+  level: 'Beginner' | 'Intermediate' | 'Advanced';
+  interests: string[];
+  emailVerified: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}
+
+export interface GoogleProfile {
+  sub: string; // Google ID
+  email: string;
+  name: string;
+  picture: string;
+  email_verified: boolean;
+}
+
+export interface Session {
+  id: string;
+  userId: string;
+  sessionToken: string;
+  expires: Date;
+  createdAt: Date;
+}
+
+export interface Account {
+  id: string;
+  userId: string;
+  type: string;
+  provider: string;
+  providerAccountId: string;
+  refreshToken?: string;
+  accessToken?: string;
+  expiresAt?: number;
+  tokenType?: string;
+  scope?: string;
+  idToken?: string;
+  sessionState?: string;
+}
