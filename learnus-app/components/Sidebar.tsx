@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, Trash2, BookOpen, ChevronRight, ChevronDown } from 'lucide-react';
 import { useStore } from '@/lib/store';
+import { UserMenu } from './auth/UserMenu';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -79,6 +80,11 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                 <X size={20} />
               </button>
             </div>
+          </div>
+          
+          {/* User Menu */}
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <UserMenu />
           </div>
 
                       {/* Content */}

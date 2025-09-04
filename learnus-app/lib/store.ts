@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { ChatMessage, Course, ChatType, CourseProgress } from './types';
+import { ChatMessage, Course, ChatType, CourseProgress, User, AuthState } from './types';
 
 interface Chat {
   id: string;
@@ -12,7 +12,7 @@ interface Chat {
   courseProgress?: CourseProgress; // Прогресс прохождения курса
 }
 
-interface AppState {
+interface AppState extends AuthState {
   // Чаты
   chats: Chat[];
   currentChatId: string | null;
@@ -39,6 +39,13 @@ interface AppState {
   updateCourse: (courseId: string, course: Partial<Course>) => void;
   createCourseChat: (courseId: string) => void;
   updateCourseProgress: (chatId: string, progress: CourseProgress) => void;
+  
+  // Методы для работы с аутентификацией
+  setUser: (user: User | null) => void;
+  setLoading: (isLoading: boolean) => void;
+  fetchUser: () => Promise<void>;
+  updateUser: (updates: Partial<User>) => Promise<void>;
+  logout: () => void;
 }
 
 export const useStore = create<AppState>()(
@@ -49,6 +56,11 @@ export const useStore = create<AppState>()(
   messages: [],
   courses: [],
   currentCourseId: null,
+  
+  // Auth state
+  user: null,
+  isAuthenticated: false,
+  isLoading: true,
   
 
   createGeneralChat: () => {
@@ -247,6 +259,78 @@ export const useStore = create<AppState>()(
           : chat
       ),
     }));
+  },
+  
+  // Методы для работы с аутентификацией
+  setUser: (user: User | null) => {
+    set({
+      user,
+      isAuthenticated: !!user,
+    });
+  },
+  
+  setLoading: (isLoading: boolean) => {
+    set({ isLoading });
+  },
+  
+  fetchUser: async () => {
+    set({ isLoading: true });
+    try {
+      const response = await fetch('/api/auth/me');
+      if (response.ok) {
+        const data = await response.json();
+        set({
+          user: data.data,
+          isAuthenticated: true,
+          isLoading: false,
+        });
+      } else {
+        set({
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch user:', error);
+      set({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+    }
+  },
+  
+  updateUser: async (updates: Partial<User>) => {
+    const currentUser = get().user;
+    if (!currentUser) return;
+    
+    try {
+      const response = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updates),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        set({ user: data.data });
+      } else {
+        throw new Error('Failed to update profile');
+      }
+    } catch (error) {
+      console.error('Failed to update user:', error);
+      throw error;
+    }
+  },
+  
+  logout: () => {
+    set({
+      user: null,
+      isAuthenticated: false,
+    });
   },
     }),
     {

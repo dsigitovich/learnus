@@ -74,3 +74,32 @@ export interface CourseProgress {
   currentLessonIndex: number;
   completedLessons: string[]; // ID уроков в формате "module-index:lesson-index"
 }
+
+// Типы для аутентификации и пользователей
+export interface User {
+  id: string;
+  googleId: string;
+  email: string;
+  name: string;
+  avatarUrl?: string;
+  bio?: string;
+  level: 'Beginner' | 'Intermediate' | 'Advanced';
+  interests: string[];
+  emailVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}
+
+export interface GoogleProfile {
+  sub: string; // Google ID
+  email: string;
+  name: string;
+  picture: string;
+  email_verified: boolean;
+}
