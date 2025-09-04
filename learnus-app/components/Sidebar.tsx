@@ -81,9 +81,9 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
             </div>
           </div>
 
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto p-2 sidebar-scrollbar">
-            {/* Список курсов */
+                      {/* Content */}
+            <div className="flex-1 overflow-y-auto p-2 sidebar-scrollbar">
+              {/* Список курсов */}
               <div className="space-y-2">
                 {courses.map((course) => {
                   const isExpanded = expandedCourses.has(course.id);
@@ -101,7 +101,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                           selectCourse(course.id);
                           toggleCourseExpansion(course.id);
                           // Автоматически открываем чат курса
-                          if (courseChats.length > 0) {
+                          if (courseChats.length > 0 && courseChats[0]) {
                             selectChat(courseChats[0].id);
                           } else {
                             createCourseChat(course.id);
@@ -164,7 +164,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                           </div>
                           
                           {/* Статус обучения */}
-                          {courseChats.length > 0 && courseChats[0].courseProgress && (
+                          {courseChats.length > 0 && courseChats[0] && courseChats[0].courseProgress && (
                             <div className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
                               <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Прогресс обучения:</div>
                               <div className="text-xs text-gray-600 dark:text-gray-400">

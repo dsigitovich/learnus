@@ -182,7 +182,7 @@ export const useStore = create<AppState>()(
       // Если удален текущий чат, выбираем первый доступный чат
       let newCurrentChatId = state.currentChatId;
       if (deletedChat && state.currentChatId === deletedChat.id) {
-        newCurrentChatId = newChats.length > 0 ? newChats[0].id : null;
+        newCurrentChatId = newChats.length > 0 && newChats[0] ? newChats[0].id : null;
       }
       
       return {
