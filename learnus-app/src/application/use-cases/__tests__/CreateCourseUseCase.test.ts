@@ -17,14 +17,14 @@ describe('CreateCourseUseCase', () => {
     mockCourseRepository = {
       save: jest.fn(),
       findById: jest.fn(),
-      findAll: jest.fn(),
-      delete: jest.fn(),
-      exists: jest.fn(),
+      findByTitle: jest.fn(),
+      findByLevel: jest.fn(),
     };
 
     mockAIService = {
       generateCourse: jest.fn(),
-      generateSocraticResponse: jest.fn(),
+      generateLesson: jest.fn(),
+      chat: jest.fn(),
     };
 
     mockEventBus = {
@@ -57,7 +57,7 @@ describe('CreateCourseUseCase', () => {
         expectedOutcome: 'Understand React basics',
       }).getValue();
 
-      const module = Module.create({
+      const courseModule = Module.create({
         title: 'Getting Started',
         learningObjectives: ['Understand React fundamentals'],
         lessons: [lesson],
@@ -67,12 +67,13 @@ describe('CreateCourseUseCase', () => {
         title: request.title,
         description: request.description,
         level: request.level,
-        modules: [module],
+        modules: [courseModule],
+        course_summary: 'A comprehensive React course for beginners',
       };
 
       mockAIService.generateCourse.mockResolvedValue(Result.ok(generatedCourse));
       mockCourseRepository.save.mockResolvedValue(Result.ok(undefined));
-      mockEventBus.publish.mockResolvedValue(undefined);
+      mockEventBus.publish.mockReturnValue(undefined);
 
       // Act
       const result = await useCase.execute(request);
@@ -87,7 +88,8 @@ describe('CreateCourseUseCase', () => {
       expect(response.totalLessons).toBe(1);
 
       expect(mockAIService.generateCourse).toHaveBeenCalledWith(
-        request.prompt,
+        request.title,
+        request.description,
         request.level
       );
       expect(mockCourseRepository.save).toHaveBeenCalled();
@@ -134,18 +136,19 @@ describe('CreateCourseUseCase', () => {
         expectedOutcome: 'Outcome',
       }).getValue();
 
-      const module = Module.create({
+      const courseModule = Module.create({
         title: 'Module 1',
         learningObjectives: ['Learn'],
         lessons: [lesson],
       }).getValue();
 
-      mockAIService.generateCourse.mockResolvedValue({
+      mockAIService.generateCourse.mockResolvedValue(Result.ok({
         title: request.title,
         description: request.description,
         level: request.level,
-        modules: [module],
-      });
+        modules: [courseModule],
+        course_summary: 'A React course module',
+      }));
 
       mockCourseRepository.save.mockRejectedValue(
         new Error('Database error')

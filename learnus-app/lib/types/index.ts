@@ -13,12 +13,12 @@ export interface ChatMessage {
 export interface ApiResponse<T> {
   data?: T;
   error?: string;
-  details?: any;
+  details?: Record<string, unknown>;
 }
 
 export interface ApiError {
   error: string;
-  details?: any;
+  details?: Record<string, unknown>;
 }
 
 // Типы для курсов

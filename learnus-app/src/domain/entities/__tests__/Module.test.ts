@@ -32,10 +32,10 @@ describe('Module', () => {
 
       // Assert
       expect(result.isSuccess).toBe(true);
-      const module = result.getValue();
-      expect(module.title).toBe('React Basics');
-      expect(module.learningObjectives).toEqual(props.learningObjectives);
-      expect(module.lessons).toHaveLength(2);
+      const newModule = result.getValue();
+      expect(newModule.title).toBe('React Basics');
+      expect(newModule.learningObjectives).toEqual(props.learningObjectives);
+      expect(newModule.lessons).toHaveLength(2);
     });
 
     it('should fail with empty title', () => {
@@ -107,7 +107,7 @@ describe('Module', () => {
   describe('addLesson', () => {
     it('should add lesson to module', () => {
       // Arrange
-      const module = Module.create({
+      const newModule = Module.create({
         title: 'React Basics',
         learningObjectives: ['Some objective'],
         lessons: [createValidLesson('Lesson 1')],
@@ -115,11 +115,11 @@ describe('Module', () => {
       const newLesson = createValidLesson('Lesson 2');
 
       // Act
-      module.addLesson(newLesson);
+      newModule.addLesson(newLesson);
 
       // Assert
-      expect(module.lessons).toHaveLength(2);
-      expect(module.lessons[1]?.id).toBe(newLesson.id);
+      expect(newModule.lessons).toHaveLength(2);
+      expect(newModule.lessons[1]?.id).toBe(newLesson.id);
     });
   });
 
@@ -128,32 +128,32 @@ describe('Module', () => {
       // Arrange
       const lesson1 = createValidLesson('Lesson 1');
       const lesson2 = createValidLesson('Lesson 2');
-      const module = Module.create({
+      const newModule = Module.create({
         title: 'React Basics',
         learningObjectives: ['Some objective'],
         lessons: [lesson1, lesson2],
       }).getValue();
 
       // Act
-      const result = module.removeLesson(lesson1.id);
+      const result = newModule.removeLesson(lesson1.id);
 
       // Assert
       expect(result.isSuccess).toBe(true);
-      expect(module.lessons).toHaveLength(1);
-      expect(module.lessons[0]?.id).toBe(lesson2.id);
+      expect(newModule.lessons).toHaveLength(1);
+      expect(newModule.lessons[0]?.id).toBe(lesson2.id);
     });
 
     it('should fail to remove last lesson', () => {
       // Arrange
       const lesson = createValidLesson('Lesson 1');
-      const module = Module.create({
+      const newModule = Module.create({
         title: 'React Basics',
         learningObjectives: ['Some objective'],
         lessons: [lesson],
       }).getValue();
 
       // Act
-      const result = module.removeLesson(lesson.id);
+      const result = newModule.removeLesson(lesson.id);
 
       // Assert
       expect(result.isFailure).toBe(true);
@@ -162,14 +162,14 @@ describe('Module', () => {
 
     it('should fail to remove non-existing lesson', () => {
       // Arrange
-      const module = Module.create({
+      const newModule = Module.create({
         title: 'React Basics',
         learningObjectives: ['Some objective'],
         lessons: [createValidLesson('Lesson 1')],
       }).getValue();
 
       // Act
-      const result = module.removeLesson('non-existing-id');
+      const result = newModule.removeLesson('non-existing-id');
 
       // Assert
       expect(result.isFailure).toBe(true);
@@ -182,14 +182,14 @@ describe('Module', () => {
       // Arrange
       const lesson1 = createValidLesson('Lesson 1');
       const lesson2 = createValidLesson('Lesson 2');
-      const module = Module.create({
+      const newModule = Module.create({
         title: 'React Basics',
         learningObjectives: ['Some objective'],
         lessons: [lesson1, lesson2],
       }).getValue();
 
       // Act
-      const foundLesson = module.getLessonById(lesson2.id);
+      const foundLesson = newModule.getLessonById(lesson2.id);
 
       // Assert
       expect(foundLesson).toBeDefined();
@@ -198,14 +198,14 @@ describe('Module', () => {
 
     it('should return undefined for non-existing lesson', () => {
       // Arrange
-      const module = Module.create({
+      const newModule = Module.create({
         title: 'React Basics',
         learningObjectives: ['Some objective'],
         lessons: [createValidLesson('Lesson 1')],
       }).getValue();
 
       // Act
-      const foundLesson = module.getLessonById('non-existing-id');
+      const foundLesson = newModule.getLessonById('non-existing-id');
 
       // Assert
       expect(foundLesson).toBeUndefined();
@@ -215,7 +215,7 @@ describe('Module', () => {
   describe('getTotalLessons', () => {
     it('should return total number of lessons', () => {
       // Arrange
-      const module = Module.create({
+      const newModule = Module.create({
         title: 'React Basics',
         learningObjectives: ['Some objective'],
         lessons: [
@@ -226,7 +226,7 @@ describe('Module', () => {
       }).getValue();
 
       // Act & Assert
-      expect(module.getTotalLessons()).toBe(3);
+      expect(newModule.getTotalLessons()).toBe(3);
     });
   });
 });

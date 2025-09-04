@@ -59,7 +59,7 @@ describe('User', () => {
       const props = {
         email: 'user@example.com',
         name: 'Test User',
-        level: 'Expert' as any,
+        level: 'InvalidLevel' as any,
       };
 
       // Act

@@ -183,7 +183,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                   <div className="text-center text-sm text-gray-500 dark:text-gray-400 py-8">
                     Нет созданных курсов.
                     <br />
-                    Напишите в чате "создай курс по..."
+                    Напишите в чате &ldquo;создай курс по...&rdquo;
                   </div>
                 )}
               </div>

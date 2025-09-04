@@ -43,11 +43,12 @@ export class CreateCourseUseCase {
       }
 
       // 3. Create course aggregate
+      const courseData = courseStructure.getValue();
       const courseResult = CourseAggregate.create({
-        title: courseStructure.title,
-        description: courseStructure.description,
-        level: courseStructure.level,
-        modules: courseStructure.modules,
+        title: courseData.title,
+        description: courseData.description,
+        level: courseData.level,
+        modules: courseData.modules,
       });
 
       if (courseResult.isFailure) {
