@@ -113,13 +113,38 @@ export class OpenAIService implements IAIService {
 
   async chat(_message: string, _context: string): Promise<Result<string>> {
     try {
+      // Импортируем Сократический промпт
+      const { SOCRATIC_PROMPT } = await import('../../../lib/templates/system_promts');
+      
+      // Парсим контекст если он есть
+      let systemPrompt = SOCRATIC_PROMPT;
+      if (_context) {
+        try {
+          const contextData = JSON.parse(_context);
+          if (contextData.courseTitle) {
+            systemPrompt = `${SOCRATIC_PROMPT}
+
+Текущий контекст обучения:
+- Курс: "${contextData.courseTitle}"
+${contextData.currentLesson ? `- Текущий урок: "${contextData.currentLesson}"` : ''}
+${contextData.learningObjectives ? `- Цели обучения: ${contextData.learningObjectives.join(', ')}` : ''}
+
+Помни об этом контексте при ведении диалога.`;
+          }
+        } catch (error) {
+          // Если не удалось распарсить контекст, используем базовый промпт
+          console.warn('Failed to parse chat context:', error);
+        }
+      }
+
       const completion = await this.openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4o-mini",
         messages: [
-          { role: "system", content: "You are a helpful AI assistant." },
+          { role: "system", content: systemPrompt },
           { role: "user", content: _message }
         ],
         temperature: 0.7,
+        max_tokens: 2000,
       });
 
       const response = completion.choices[0]?.message?.content;
