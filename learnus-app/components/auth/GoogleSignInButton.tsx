@@ -2,6 +2,7 @@
 
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 interface GoogleSignInButtonProps {
   callbackUrl?: string;
@@ -13,11 +14,18 @@ export function GoogleSignInButton({
   className = '' 
 }: GoogleSignInButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const searchParams = useSearchParams();
 
   const handleSignIn = async () => {
     setIsLoading(true);
     try {
-      await signIn('google', { callbackUrl });
+      // Получаем callbackUrl из параметров URL или используем переданный/дефолтный
+      const redirectUrl = searchParams.get('callbackUrl') || callbackUrl;
+      
+      await signIn('google', { 
+        callbackUrl: redirectUrl,
+        redirect: true 
+      });
     } catch (error) {
       console.error('Failed to sign in:', error);
       setIsLoading(false);

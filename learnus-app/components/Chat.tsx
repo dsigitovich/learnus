@@ -51,6 +51,25 @@ export default function Chat() {
         }),
       });
       
+      // Проверяем, что ответ действительно JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        // Если ответ не JSON, вероятно это HTML-страница ошибки
+        if (response.status === 401 || response.status === 403) {
+          addMessage({
+            role: 'assistant',
+            content: 'Ошибка авторизации. Пожалуйста, войдите в систему заново.',
+          });
+          return;
+        } else {
+          addMessage({
+            role: 'assistant',
+            content: 'Произошла ошибка сервера. Пожалуйста, попробуйте позже.',
+          });
+          return;
+        }
+      }
+      
       const data = await response.json();
       
       if (!response.ok) {
@@ -86,10 +105,19 @@ export default function Chat() {
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      addMessage({
-        role: 'assistant',
-        content: 'Извините, произошла ошибка при обработке вашего сообщения.',
-      });
+      
+      // Проверяем, является ли ошибка ошибкой парсинга JSON
+      if (error instanceof SyntaxError && error.message.includes('JSON')) {
+        addMessage({
+          role: 'assistant',
+          content: 'Ошибка авторизации. Пожалуйста, войдите в систему заново.',
+        });
+      } else {
+        addMessage({
+          role: 'assistant',
+          content: 'Извините, произошла ошибка при обработке вашего сообщения.',
+        });
+      }
     } finally {
       setLoading(false);
     }
