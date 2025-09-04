@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Suspense } from "react";
 
 const errors: Record<string, string> = {
   Configuration: "Проблема с конфигурацией сервера.",
@@ -18,7 +19,7 @@ const errors: Record<string, string> = {
   Default: "Произошла ошибка при входе в систему.",
 };
 
-export default function AuthError() {
+function AuthErrorContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
   const errorMessage = error && errors[error] ? errors[error] : errors.Default;
@@ -66,5 +67,13 @@ export default function AuthError() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AuthError() {
+  return (
+    <Suspense fallback={<div>Загрузка...</div>}>
+      <AuthErrorContent />
+    </Suspense>
   );
 }

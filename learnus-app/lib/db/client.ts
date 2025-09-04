@@ -45,7 +45,7 @@ export const userRepository = {
     const db = getDatabase();
     const interests = JSON.stringify(user.interests || []);
     
-    const result = db.prepare(`
+    db.prepare(`
       INSERT INTO users (id, google_id, email, name, avatar_url, bio, level, interests, email_verified)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(

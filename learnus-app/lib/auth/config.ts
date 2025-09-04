@@ -8,13 +8,6 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code"
-        }
-      }
     })
   ],
   callbacks: {
@@ -47,7 +40,7 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     
-    async session({ session, token }) {
+    async session({ session }) {
       if (session.user?.email) {
         const dbUser = userRepository.findByEmail(session.user.email);
         if (dbUser) {
