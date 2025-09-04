@@ -1,10 +1,11 @@
 import { Result } from '@shared/types/result';
+import { Module } from '@domain/entities/Module';
 
 export interface CourseData {
   title: string;
   description: string;
   level: 'Beginner' | 'Intermediate' | 'Advanced';
-  modules: any[];
+  modules: Module[];
   course_summary: string;
 }
 

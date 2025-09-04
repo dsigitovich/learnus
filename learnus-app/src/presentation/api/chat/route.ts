@@ -85,14 +85,21 @@ export async function POST(request: NextRequest) {
         };
       }
       
-      const reply = await aiService.generateSocraticResponse(
+      const replyResult = await aiService.chat(
         lastMessage.content,
-        chatContext
+        JSON.stringify(chatContext)
       );
+      
+      if (replyResult.isFailure) {
+        return NextResponse.json(
+          { error: replyResult.getError().message },
+          { status: 500 }
+        );
+      }
       
       return NextResponse.json({
         data: {
-          reply,
+          reply: replyResult.getValue(),
           role: 'assistant',
         },
       });

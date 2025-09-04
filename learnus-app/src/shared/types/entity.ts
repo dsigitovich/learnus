@@ -27,7 +27,7 @@ export abstract class Entity<T> {
     return this._id === object._id;
   }
 
-  private isEntity(v: any): v is Entity<T> {
+  private isEntity(v: unknown): v is Entity<T> {
     return v instanceof Entity;
   }
 

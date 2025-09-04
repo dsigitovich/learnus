@@ -41,7 +41,7 @@ export class Module extends Entity<ModuleProps> {
       return Result.fail(new Error('Module must have at least one lesson'));
     }
 
-    const module = new Module(
+    const newModule = new Module(
       {
         title: props.title.trim(),
         learningObjectives: props.learningObjectives
@@ -52,7 +52,7 @@ export class Module extends Entity<ModuleProps> {
       id
     );
 
-    return Result.ok(module);
+    return Result.ok(newModule);
   }
 
   public addLesson(lesson: Lesson): void {

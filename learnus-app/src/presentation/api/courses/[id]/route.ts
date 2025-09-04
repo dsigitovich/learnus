@@ -17,8 +17,16 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const courseRepository = container.get<ICourseRepository>(TYPES.ICourseRepository);
-    const course = await courseRepository.findById(id);
+    const courseResult = await courseRepository.findById(id);
     
+    if (courseResult.isFailure) {
+      return NextResponse.json(
+        { error: courseResult.getError().message },
+        { status: 500 }
+      );
+    }
+    
+    const course = courseResult.getValue();
     if (!course) {
       return NextResponse.json(
         { error: 'Course not found' },
@@ -49,15 +57,27 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     const { id } = await params;
     const courseRepository = container.get<ICourseRepository>(TYPES.ICourseRepository);
     
-    const exists = await courseRepository.exists(id);
-    if (!exists) {
+    const courseResult = await courseRepository.findById(id);
+    if (courseResult.isFailure) {
+      return NextResponse.json(
+        { error: courseResult.getError().message },
+        { status: 500 }
+      );
+    }
+    
+    const course = courseResult.getValue();
+    if (!course) {
       return NextResponse.json(
         { error: 'Course not found' },
         { status: 404 }
       );
     }
     
-    await courseRepository.delete(id);
+    // Note: delete method not implemented yet
+    return NextResponse.json(
+      { error: 'Delete method not implemented yet' },
+      { status: 501 }
+    );
     
     return NextResponse.json({
       message: 'Course deleted successfully',

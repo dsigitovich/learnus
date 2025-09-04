@@ -107,7 +107,7 @@ export default function Chat() {
           <p className="text-gray-600 dark:text-gray-400 mb-6">
             Для начала работы выберите существующий курс в боковой панели
             <br />
-            или создайте новый курс, написав в чате "создай курс по..."
+            или создайте новый курс, написав в чате &ldquo;создай курс по...&rdquo;
           </p>
           <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
             <p className="text-sm text-gray-600 dark:text-gray-400 text-left">
@@ -155,14 +155,14 @@ export default function Chat() {
                 <BookOpen className="mx-auto text-blue-600 dark:text-blue-400 mb-4" size={64} />
                 <h2 className="text-2xl font-bold mb-2 text-gray-800 dark:text-white">Добро пожаловать на курс!</h2>
                 <p className="text-lg text-gray-700 dark:text-gray-200">Готовы начать обучение?</p>
-                <p className="mt-2 text-gray-600 dark:text-gray-300">Напишите "Начать" или задайте вопрос</p>
+                <p className="mt-2 text-gray-600 dark:text-gray-300">Напишите &ldquo;Начать&rdquo; или задайте вопрос</p>
               </>
             ) : (
               <>
                 <h1 className="text-4xl font-bold mb-4 text-gray-800 dark:text-white">Socrademy</h1>
                 <p className="text-lg text-gray-700 dark:text-gray-200">Начните обучение с помощью AI</p>
                 <p className="mt-2 text-gray-600 dark:text-gray-300">Задайте вопрос, чтобы начать обучение</p>
-                <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Или создайте обучающий курс, написав "Создать курс по [тема]"</p>
+                <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Или создайте обучающий курс, написав &ldquo;Создать курс по [тема]&rdquo;</p>
               </>
             )}
           </div>

@@ -123,7 +123,7 @@ describe('Lesson', () => {
       // Arrange
       const props = {
         title: 'Some title',
-        type: 'invalid' as any,
+        type: 'invalid' as LessonType,
         content: 'Some content',
         promptsForUser: ['Some prompt'],
         expectedOutcome: 'Some outcome',

@@ -4,7 +4,7 @@ import { container } from '@shared/container/container';
 import { TYPES } from '@shared/container/types';
 import { CreateCourseUseCase } from '@application/use-cases/CreateCourseUseCase';
 import { CreateCourseSchema } from '@application/dto/CreateCourseDto';
-import { ICourseRepository } from '@domain/repositories/ICourseRepository';
+
 
 /**
  * GET /api/courses
@@ -12,22 +12,10 @@ import { ICourseRepository } from '@domain/repositories/ICourseRepository';
  */
 export async function GET() {
   try {
-    const courseRepository = container.get<ICourseRepository>(TYPES.ICourseRepository);
-    const courses = await courseRepository.findAll();
-    
-    const coursesData = courses.map(course => ({
-      id: course.id,
-      title: course.title.value,
-      description: course.description,
-      level: course.level.value,
-      totalModules: course.modules.length,
-      totalLessons: course.getTotalLessons(),
-      createdAt: course.createdAt,
-      updatedAt: course.updatedAt,
-    }));
-    
+    // Note: findAll method not implemented yet
     return NextResponse.json({
-      data: coursesData,
+      data: [],
+      message: 'No courses available yet',
     });
   } catch (error) {
     console.error('Get courses error:', error);

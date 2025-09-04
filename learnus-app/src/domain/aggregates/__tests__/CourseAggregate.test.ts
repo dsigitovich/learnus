@@ -196,16 +196,16 @@ describe('CourseAggregate', () => {
 
     it('should fail to remove last module', () => {
       // Arrange
-      const module = createValidModule('Introduction');
+      const courseModule = createValidModule('Introduction');
       const course = CourseAggregate.create({
         title: 'React Course',
         description: 'Learn React',
         level: 'Beginner',
-        modules: [module],
+        modules: [courseModule],
       }).getValue();
 
       // Act
-      const result = course.removeModule(module.id);
+      const result = course.removeModule(courseModule.id);
 
       // Assert
       expect(result.isFailure).toBe(true);
