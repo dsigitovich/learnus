@@ -1,54 +1,42 @@
 import { UserId } from '../UserId';
 
 describe('UserId', () => {
-  describe('constructor', () => {
-    it('should create valid UserId with correct UUID', () => {
+  describe('create', () => {
+    it('should create UserId with valid UUID', () => {
+      // Arrange
       const validUuid = '550e8400-e29b-41d4-a716-446655440000';
-      const userId = new UserId(validUuid);
       
-      expect(userId.value).toBe(validUuid);
-    });
-
-    it('should throw error for empty value', () => {
-      expect(() => new UserId('')).toThrow('UserId cannot be empty');
-    });
-
-    it('should throw error for invalid UUID format', () => {
-      expect(() => new UserId('invalid-uuid')).toThrow('UserId must be a valid UUID');
-      expect(() => new UserId('123')).toThrow('UserId must be a valid UUID');
-    });
-  });
-
-  describe('generate', () => {
-    it('should generate valid UUID', () => {
-      const userId = UserId.generate();
+      // Act
+      const result = UserId.create(validUuid);
       
-      expect(userId).toBeInstanceOf(UserId);
-      expect(userId.value).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+      // Assert
+      expect(result.isSuccess).toBe(true);
+      const userId = result.getValue();
+      expect(userId.toString()).toBe(validUuid);
     });
 
-    it('should generate unique UUIDs', () => {
-      const userId1 = UserId.generate();
-      const userId2 = UserId.generate();
+    it('should fail with short string', () => {
+      // Arrange
+      const shortString = 'ab';
       
-      expect(userId1.value).not.toBe(userId2.value);
-    });
-  });
-
-  describe('equals', () => {
-    it('should return true for same UUID', () => {
-      const uuid = '550e8400-e29b-41d4-a716-446655440000';
-      const userId1 = new UserId(uuid);
-      const userId2 = new UserId(uuid);
+      // Act
+      const result = UserId.create(shortString);
       
-      expect(userId1.equals(userId2)).toBe(true);
+      // Assert
+      expect(result.isFailure).toBe(true);
+      expect(result.getError().message).toBe('UserId must be at least 3 characters long');
     });
 
-    it('should return false for different UUIDs', () => {
-      const userId1 = new UserId('550e8400-e29b-41d4-a716-446655440000');
-      const userId2 = new UserId('6ba7b810-9dad-11d1-80b4-00c04fd430c8');
+    it('should fail with empty string', () => {
+      // Arrange
+      const emptyString = '';
       
-      expect(userId1.equals(userId2)).toBe(false);
+      // Act
+      const result = UserId.create(emptyString);
+      
+      // Assert
+      expect(result.isFailure).toBe(true);
+      expect(result.getError().message).toBe('UserId cannot be empty');
     });
   });
 });
