@@ -2,7 +2,7 @@ import Database from 'better-sqlite3';
 import path from 'path';
 
 // Инициализация базы данных
-const dbPath = path.join(process.cwd(), 'learnus.db');
+const dbPath = path.join(process.cwd(), 'socrademy.db');
 const db = new Database(dbPath);
 
 // Включение foreign keys

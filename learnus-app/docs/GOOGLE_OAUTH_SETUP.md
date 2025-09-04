@@ -1,4 +1,4 @@
-# Настройка Google OAuth для LearnUs
+# Настройка Google OAuth для Socrademy
 
 ## Шаги для настройки Google OAuth
 
@@ -20,7 +20,7 @@
 2. Нажмите "Create Credentials" → "OAuth client ID"
 3. Если требуется, настройте OAuth consent screen:
    - User Type: External
-   - App name: LearnUs
+   - App name: Socrademy
    - User support email: ваш email
    - Developer contact: ваш email
    - Scopes: email, profile, openid
@@ -28,7 +28,7 @@
 ### 4. Настройка OAuth Client
 
 1. Application type: Web application
-2. Name: LearnUs Web Client
+2. Name: Socrademy Web Client
 3. Authorized JavaScript origins:
    - http://localhost:3000 (для разработки)
    - https://yourdomain.com (для продакшена)
@@ -56,7 +56,7 @@ GOOGLE_CLIENT_ID=your-google-client-id-here
 GOOGLE_CLIENT_SECRET=your-google-client-secret-here
 
 # Database
-DATABASE_URL=file:./learnus.db
+DATABASE_URL=file:./socrademy.db
 ```
 
 ### 7. Генерация NEXTAUTH_SECRET

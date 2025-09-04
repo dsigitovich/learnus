@@ -13,7 +13,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "db:init": "node scripts/init-db.js",
-    "db:reset": "rm -f learnus.db && npm run db:init"
+    "db:reset": "rm -f socrademy.db && npm run db:init"
   },
   "dependencies": {
     "@types/better-sqlite3": "^7.6.13",

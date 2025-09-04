@@ -334,7 +334,7 @@ export const useStore = create<AppState>()(
   },
     }),
     {
-      name: 'learnus-storage',
+      name: 'socrademy-storage',
       partialize: (state) => ({
         chats: state.chats,
         currentChatId: state.currentChatId,

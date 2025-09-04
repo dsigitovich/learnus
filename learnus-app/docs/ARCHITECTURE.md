@@ -1,8 +1,8 @@
-# Архитектура LearnUs
+# Архитектура Socrademy
 
 ## Обзор
 
-Проект LearnUs построен на основе Hexagonal Architecture (Ports & Adapters) в сочетании с принципами Domain-Driven Design (DDD).
+Проект Socrademy построен на основе Hexagonal Architecture (Ports & Adapters) в сочетании с принципами Domain-Driven Design (DDD).
 
 ## Структура проекта
 

@@ -5,7 +5,7 @@ import Database from 'better-sqlite3';
 import { randomUUID } from 'crypto';
 
 // SQLite database instance
-const db = new Database('./learnus.db');
+const db = new Database('./socrademy.db');
 
 // Custom SQLite Adapter for NextAuth
 function SQLiteAdapter(): Adapter {

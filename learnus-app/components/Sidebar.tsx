@@ -198,7 +198,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
           {/* Footer */}
           <div className="p-4 border-t border-gray-200 dark:border-gray-700">
             <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-              Learnus AI Assistant
+              Socrademy AI Assistant
             </div>
           </div>
         </div>
