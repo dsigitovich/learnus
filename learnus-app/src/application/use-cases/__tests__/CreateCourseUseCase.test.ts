@@ -70,8 +70,8 @@ describe('CreateCourseUseCase', () => {
         modules: [module],
       };
 
-      mockAIService.generateCourse.mockResolvedValue(generatedCourse);
-      mockCourseRepository.save.mockResolvedValue(undefined);
+      mockAIService.generateCourse.mockResolvedValue(Result.ok(generatedCourse));
+      mockCourseRepository.save.mockResolvedValue(Result.ok(undefined));
       mockEventBus.publish.mockResolvedValue(undefined);
 
       // Act
