@@ -2,7 +2,7 @@ const Database = require('better-sqlite3');
 const path = require('path');
 
 // Создаем базу данных
-const dbPath = path.join(process.cwd(), 'learnus.db');
+const dbPath = path.join(process.cwd(), 'socrademy.db');
 const db = new Database(dbPath);
 
 console.log('Creating database at:', dbPath);

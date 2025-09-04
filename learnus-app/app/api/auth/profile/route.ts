@@ -6,7 +6,7 @@ import { UserMapper } from '@/infrastructure/database/mappers/UserMapper';
 import Database from 'better-sqlite3';
 import { z } from 'zod';
 
-const db = new Database('./learnus.db');
+const db = new Database('./socrademy.db');
 const userRepository = new UserRepository(db);
 
 // Схема валидации для обновления профиля

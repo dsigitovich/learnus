@@ -130,7 +130,7 @@ export default function Chat() {
         <div className="text-center px-4">
           <BookOpen size={64} className="mx-auto mb-4 text-gray-400" />
           <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            Добро пожаловать в Learnus!
+            Добро пожаловать в Socrademy!
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
             Для начала работы выберите существующий курс в боковой панели
