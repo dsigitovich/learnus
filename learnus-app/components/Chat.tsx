@@ -51,6 +51,25 @@ export default function Chat() {
         }),
       });
       
+      // Проверяем, что ответ действительно JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        // Если ответ не JSON, вероятно это HTML-страница ошибки
+        if (response.status === 401 || response.status === 403) {
+          addMessage({
+            role: 'assistant',
+            content: 'Ошибка авторизации. Пожалуйста, войдите в систему заново.',
+          });
+          return;
+        } else {
+          addMessage({
+            role: 'assistant',
+            content: 'Произошла ошибка сервера. Пожалуйста, попробуйте позже.',
+          });
+          return;
+        }
+      }
+      
       const data = await response.json();
       
       if (!response.ok) {
@@ -86,10 +105,19 @@ export default function Chat() {
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      addMessage({
-        role: 'assistant',
-        content: 'Извините, произошла ошибка при обработке вашего сообщения.',
-      });
+      
+      // Проверяем, является ли ошибка ошибкой парсинга JSON
+      if (error instanceof SyntaxError && error.message.includes('JSON')) {
+        addMessage({
+          role: 'assistant',
+          content: 'Ошибка авторизации. Пожалуйста, войдите в систему заново.',
+        });
+      } else {
+        addMessage({
+          role: 'assistant',
+          content: 'Извините, произошла ошибка при обработке вашего сообщения.',
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -102,7 +130,7 @@ export default function Chat() {
         <div className="text-center max-w-lg mx-auto">
           <BookOpen size={64} className="mx-auto mb-4 text-gray-400 md:mb-6" />
           <h2 className="text-xl md:text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            Добро пожаловать в Learnus!
+            Добро пожаловать в Socrademy!
           </h2>
           <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
             Для начала работы выберите существующий курс в боковой панели
@@ -174,7 +202,7 @@ export default function Chat() {
               </>
             ) : (
               <>
-                <h1 className="text-2xl md:text-4xl font-bold mb-4 text-gray-800 dark:text-white">Learnus</h1>
+                <h1 className="text-2xl md:text-4xl font-bold mb-4 text-gray-800 dark:text-white">Socrademy</h1>
                 <p className="text-base md:text-lg text-gray-700 dark:text-gray-200">Начните обучение с помощью AI</p>
                 <p className="mt-2 text-sm md:text-base text-gray-600 dark:text-gray-300">Задайте вопрос, чтобы начать обучение</p>
                 <p className="mt-4 text-xs md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Или создайте обучающий курс, написав &ldquo;Создать курс по [тема]&rdquo;</p>

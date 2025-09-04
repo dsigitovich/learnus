@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, Trash2, BookOpen, ChevronRight, ChevronDown } from 'lucide-react';
 import { useStore } from '@/lib/store';
-import { UserMenu } from './auth/UserMenu';
+import { UserProfileMenu } from './auth/UserProfileMenu';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -85,7 +85,7 @@ export default function Sidebar({ isOpen, onToggle, onCourseSelect }: SidebarPro
           
           {/* User Menu */}
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-            <UserMenu />
+            <UserProfileMenu />
           </div>
 
                       {/* Content */}
@@ -201,7 +201,7 @@ export default function Sidebar({ isOpen, onToggle, onCourseSelect }: SidebarPro
           {/* Footer */}
           <div className="p-4 border-t border-gray-200 dark:border-gray-700">
             <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-              Learnus AI Assistant
+              Socrademy AI Assistant
             </div>
           </div>
         </div>

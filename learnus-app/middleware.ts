@@ -3,12 +3,33 @@ import { NextResponse } from 'next/server';
 
 export default withAuth(
   function middleware(req) {
-    // Дополнительная логика middleware при необходимости
+    // Если пользователь авторизован и пытается зайти на страницу входа,
+    // перенаправляем на главную
+    if (req.nextauth.token && req.nextUrl.pathname === '/auth/signin') {
+      return NextResponse.redirect(new URL('/', req.url));
+    }
+    
     return NextResponse.next();
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token,
+      authorized: ({ token, req }) => {
+        // Страница входа доступна всем
+        if (req.nextUrl.pathname === '/auth/signin') {
+          return true;
+        }
+        
+        // API роуты для чата - проверяем авторизацию, но не блокируем
+        if (req.nextUrl.pathname.startsWith('/api/chat')) {
+          return true; // Разрешаем доступ, но проверяем токен в самом API
+        }
+        
+        // Остальные защищенные маршруты требуют авторизации
+        return !!token;
+      },
+    },
+    pages: {
+      signIn: '/auth/signin',
     },
   }
 );
@@ -25,5 +46,7 @@ export const config = {
     '/profile/:path*',
     '/settings/:path*',
     '/courses/create/:path*',
+    // Страница входа (для перенаправления авторизованных пользователей)
+    '/auth/signin',
   ],
 };

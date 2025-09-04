@@ -5,7 +5,7 @@ import { UserRepository } from '@/infrastructure/database/UserRepository';
 import { UserMapper } from '@/infrastructure/database/mappers/UserMapper';
 import Database from 'better-sqlite3';
 
-const db = new Database('./learnus.db');
+const db = new Database('./socrademy.db');
 const userRepository = new UserRepository(db);
 
 export async function GET(request: NextRequest) {
