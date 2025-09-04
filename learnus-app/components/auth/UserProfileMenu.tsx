@@ -3,7 +3,7 @@
 import { useSession, signOut } from 'next-auth/react';
 import { useState, useRef, useEffect } from 'react';
 
-export function UserMenu() {
+export function UserProfileMenu() {
   const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -19,6 +19,10 @@ export function UserMenu() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: '/' });
+  };
+
   if (status === 'loading') {
     return (
       <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse" />
@@ -28,10 +32,6 @@ export function UserMenu() {
   if (!session?.user) {
     return null;
   }
-
-  const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/' });
-  };
 
   return (
     <div className="relative" ref={menuRef}>
