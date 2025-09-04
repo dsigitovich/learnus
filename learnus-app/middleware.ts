@@ -18,6 +18,12 @@ export default withAuth(
         if (req.nextUrl.pathname === '/auth/signin') {
           return true;
         }
+        
+        // API роуты для чата - проверяем авторизацию, но не блокируем
+        if (req.nextUrl.pathname.startsWith('/api/chat')) {
+          return true; // Разрешаем доступ, но проверяем токен в самом API
+        }
+        
         // Остальные защищенные маршруты требуют авторизации
         return !!token;
       },

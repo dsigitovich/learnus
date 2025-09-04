@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 import OpenAI from 'openai';
 import { Course, CourseProgress } from '@/lib/types';
 import { SOCRATIC_PROMPT, COURSE_CREATION_PROMPT, courseKeywords } from '@/lib/templates/system_promts';
@@ -50,6 +52,15 @@ function checkForCourseCreationRequest(message: string): boolean {
  */
 export async function POST(request: NextRequest) {
   try {
+    // Проверяем авторизацию
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
     // Проверяем наличие API ключа
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json(
