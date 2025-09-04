@@ -21,7 +21,11 @@ export function GoogleSignInButton({
     try {
       // Получаем callbackUrl из параметров URL или используем переданный/дефолтный
       const redirectUrl = searchParams.get('callbackUrl') || callbackUrl;
-      await signIn('google', { callbackUrl: redirectUrl });
+      
+      await signIn('google', { 
+        callbackUrl: redirectUrl,
+        redirect: true 
+      });
     } catch (error) {
       console.error('Failed to sign in:', error);
       setIsLoading(false);

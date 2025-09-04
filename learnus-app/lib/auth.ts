@@ -130,6 +130,21 @@ function SQLiteAdapter(): Adapter {
       // Обновляем google_id в таблице users
       const updateStmt = db.prepare('UPDATE users SET google_id = ? WHERE id = ?');
       updateStmt.run(account.providerAccountId, account.userId);
+      
+      return {
+        id,
+        userId: account.userId,
+        type: account.type,
+        provider: account.provider,
+        providerAccountId: account.providerAccountId,
+        refresh_token: account.refresh_token,
+        access_token: account.access_token,
+        expires_at: account.expires_at,
+        token_type: account.token_type,
+        scope: account.scope,
+        id_token: account.id_token,
+        session_state: account.session_state
+      };
     },
 
     async createSession({ sessionToken, userId, expires }) {
@@ -258,21 +273,24 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async session({ session, user }) {
-      if (session.user) {
+      if (session.user && user) {
         session.user.id = user.id;
       }
       return session;
     },
     async redirect({ url, baseUrl }) {
       // Если URL начинается с "/", это относительный путь
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      if (url.startsWith("/")) {
+        return `${baseUrl}${url}`;
+      }
       // Если URL на том же домене
-      else if (new URL(url).origin === baseUrl) return url;
+      else if (new URL(url).origin === baseUrl) {
+        return url;
+      }
       // По умолчанию перенаправляем на главную страницу
       return baseUrl;
     },
     async signIn({ user, account, profile }) {
-      // Возвращаем true для успешной авторизации
       return true;
     }
   },

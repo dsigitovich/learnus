@@ -2,7 +2,6 @@
 
 import { useSession, signOut } from 'next-auth/react';
 import { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
 
 export function UserMenu() {
   const { data: session, status } = useSession();
@@ -42,18 +41,29 @@ export function UserMenu() {
         aria-label="Меню пользователя"
       >
         {session.user.image ? (
-          <Image
+          <img
             src={session.user.image}
             alt={session.user.name || 'User avatar'}
             width={40}
             height={40}
-            className="rounded-full"
+            className="rounded-full object-cover"
+            onError={(e) => {
+              // Если изображение не загружается, скрываем его и показываем fallback
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+              const fallback = target.nextElementSibling as HTMLElement;
+              if (fallback) {
+                fallback.style.display = 'flex';
+              }
+            }}
           />
-        ) : (
-          <div className="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center text-white font-semibold">
-            {session.user.name?.[0]?.toUpperCase() || 'U'}
-          </div>
-        )}
+        ) : null}
+        <div 
+          className="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center text-white font-semibold"
+          style={{ display: session.user.image ? 'none' : 'flex' }}
+        >
+          {session.user.name?.[0]?.toUpperCase() || 'U'}
+        </div>
       </button>
 
       {isOpen && (
