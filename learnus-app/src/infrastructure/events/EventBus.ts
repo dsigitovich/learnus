@@ -2,20 +2,18 @@ import { injectable } from 'inversify';
 import { IEventBus } from '@application/interfaces/IEventBus';
 import { DomainEvent } from '@shared/types/domain-event';
 
-type EventHandler = (event: DomainEvent) => Promise<void>;
+type EventHandler = (_event: DomainEvent) => void;
 
 @injectable()
 export class EventBus implements IEventBus {
   private handlers: Map<string, EventHandler[]> = new Map();
 
-  async publish(event: DomainEvent): Promise<void> {
-    const eventName = event.constructor.name;
+  publish(_event: DomainEvent): void {
+    const eventName = _event.constructor.name;
     const handlers = this.handlers.get(eventName) || [];
     
     // Execute all handlers for this event
-    await Promise.all(
-      handlers.map(handler => handler(event))
-    );
+    handlers.forEach(handler => handler(_event));
   }
 
   subscribe(eventName: string, handler: EventHandler): void {

@@ -1,20 +1,21 @@
-import { Module } from '@domain/entities/Module';
+import { Result } from '@shared/types/result';
 
-export interface CourseStructure {
+export interface CourseData {
   title: string;
   description: string;
   level: 'Beginner' | 'Intermediate' | 'Advanced';
-  modules: Module[];
+  modules: any[];
+  course_summary: string;
+}
+
+export interface LessonData {
+  title: string;
+  content: string;
+  level: string;
 }
 
 export interface IAIService {
-  generateCourse(prompt: string, userLevel: string): Promise<CourseStructure>;
-  generateSocraticResponse(
-    message: string,
-    context?: {
-      courseTitle?: string;
-      currentLesson?: string;
-      learningObjectives?: string[];
-    }
-  ): Promise<string>;
+  generateCourse(_title: string, _description: string, _level: string): Promise<Result<CourseData>>;
+  generateLesson(_prompt: string, _userLevel: string): Promise<Result<LessonData>>;
+  chat(_message: string, _context: string): Promise<Result<string>>;
 }

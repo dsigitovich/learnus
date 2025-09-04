@@ -5,6 +5,7 @@ import { IEventBus } from '@application/interfaces/IEventBus';
 import { CreateCourseDto } from '@application/dto/CreateCourseDto';
 import { Module } from '@domain/entities/Module';
 import { Lesson } from '@domain/entities/Lesson';
+import { Result } from '@shared/types/result';
 
 describe('CreateCourseUseCase', () => {
   let mockCourseRepository: jest.Mocked<ICourseRepository>;

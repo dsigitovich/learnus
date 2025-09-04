@@ -28,9 +28,14 @@ export class CreateCourseUseCase {
       let courseStructure;
       try {
         courseStructure = await this.aiService.generateCourse(
-          request.prompt,
+          request.title,
+          request.description,
           request.level
         );
+        
+        if (courseStructure.isFailure) {
+          return Result.fail(courseStructure.getError());
+        }
       } catch (error) {
         return Result.fail(
           new Error(`Failed to generate course: ${error instanceof Error ? error.message : 'Unknown error'}`)

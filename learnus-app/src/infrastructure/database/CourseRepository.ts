@@ -1,44 +1,45 @@
 import { injectable } from 'inversify';
 import { ICourseRepository } from '@domain/repositories/ICourseRepository';
 import { CourseAggregate } from '@domain/aggregates/CourseAggregate';
-import { CourseMapper, CoursePersistence } from './mappers/CourseMapper';
+import { Result } from '@shared/types/result';
 
 @injectable()
 export class CourseRepository implements ICourseRepository {
-  // In-memory storage for now, will be replaced with SQLite
-  private courses: Map<string, CoursePersistence> = new Map();
+  private courses: Map<string, CourseAggregate> = new Map();
 
-  async save(course: CourseAggregate): Promise<void> {
-    const persistence = CourseMapper.toPersistence(course);
-    this.courses.set(course.id, persistence);
-  }
-
-  async findById(id: string): Promise<CourseAggregate | null> {
-    const persistence = this.courses.get(id);
-    if (!persistence) {
-      return null;
+  async save(_course: CourseAggregate): Promise<Result<void>> {
+    try {
+      this.courses.set(_course.id, _course);
+      return Result.ok(undefined);
+    } catch (error) {
+      return Result.fail(error as Error);
     }
-    return CourseMapper.toDomain(persistence);
   }
 
-  async findAll(): Promise<CourseAggregate[]> {
-    const courses: CourseAggregate[] = [];
-    
-    for (const persistence of this.courses.values()) {
-      const course = CourseMapper.toDomain(persistence);
-      if (course) {
-        courses.push(course);
-      }
+  async findById(_id: string): Promise<Result<CourseAggregate | null>> {
+    try {
+      const course = this.courses.get(_id) || null;
+      return Result.ok(course);
+    } catch (error) {
+      return Result.fail(error as Error);
     }
-    
-    return courses;
   }
 
-  async delete(id: string): Promise<void> {
-    this.courses.delete(id);
+  async findByTitle(_id: string): Promise<Result<CourseAggregate | null>> {
+    try {
+      const course = Array.from(this.courses.values()).find(c => c.title.value === _id) || null;
+      return Result.ok(course);
+    } catch (error) {
+      return Result.fail(error as Error);
+    }
   }
 
-  async exists(id: string): Promise<boolean> {
-    return this.courses.has(id);
+  async findByLevel(_id: string): Promise<Result<CourseAggregate[]>> {
+    try {
+      const courses = Array.from(this.courses.values()).filter(c => c.level.value === _id);
+      return Result.ok(courses);
+    } catch (error) {
+      return Result.fail(error as Error);
+    }
   }
 }

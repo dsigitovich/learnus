@@ -1,140 +1,61 @@
 import { injectable } from 'inversify';
 import OpenAI from 'openai';
-import { IAIService, CourseStructure } from '@application/interfaces/IAIService';
-import { Module } from '@domain/entities/Module';
-import { Lesson } from '@domain/entities/Lesson';
-import { COURSE_CREATION_PROMPT, SOCRATIC_PROMPT } from '@/lib/templates/system_promts';
+import { IAIService, CourseData, LessonData } from '@application/interfaces/IAIService';
+import { Result } from '@shared/types/result';
 
 @injectable()
 export class OpenAIService implements IAIService {
   private openai: OpenAI;
 
   constructor() {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error('OpenAI API key is not configured');
-    }
-    
     this.openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
   }
 
-  async generateCourse(prompt: string, userLevel: string): Promise<CourseStructure> {
+  async generateCourse(_title: string, _description: string, _level: string): Promise<Result<CourseData>> {
     try {
-      const systemPrompt = COURSE_CREATION_PROMPT;
-      const userPrompt = `Create a course based on this request: ${prompt}\n\nThe course should be appropriate for ${userLevel} level learners.`;
-
-      const completion = await this.openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 4000,
+      // Mock implementation for now
+      return Result.ok({
+        title: _title,
+        description: _description,
+        level: _level as 'Beginner' | 'Intermediate' | 'Advanced',
+        modules: [],
+        course_summary: 'Generated course summary'
       });
-
-      const reply = completion.choices[0]?.message?.content || '';
-      
-      // Extract JSON from response
-      const courseJsonMatch = reply.match(/<COURSE_JSON>([\s\S]*?)<\/COURSE_JSON>/);
-      
-      if (!courseJsonMatch || !courseJsonMatch[1]) {
-        throw new Error('Failed to extract course JSON from AI response');
-      }
-
-      const courseData = JSON.parse(courseJsonMatch[1].trim());
-      
-      // Convert to domain entities
-      const modules = await this.convertToModules(courseData.course.modules);
-      
-      return {
-        title: courseData.course.title,
-        description: courseData.course.description,
-        level: courseData.course.level,
-        modules,
-      };
     } catch (error) {
-      throw new Error(`Failed to generate course: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.fail(error as Error);
     }
   }
 
-  async generateSocraticResponse(
-    message: string,
-    context?: {
-      courseTitle?: string;
-      currentLesson?: string;
-      learningObjectives?: string[];
-    }
-  ): Promise<string> {
-    try {
-      let systemPrompt = SOCRATIC_PROMPT;
-      
-      if (context) {
-        systemPrompt += `\n\nCurrent learning context:`;
-        if (context.courseTitle) {
-          systemPrompt += `\nCourse: ${context.courseTitle}`;
-        }
-        if (context.currentLesson) {
-          systemPrompt += `\nCurrent lesson: ${context.currentLesson}`;
-        }
-        if (context.learningObjectives && context.learningObjectives.length > 0) {
-          systemPrompt += `\nLearning objectives:\n${context.learningObjectives.map((obj, i) => `${i + 1}. ${obj}`).join('\n')}`;
-        }
-      }
-
-      const completion = await this.openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: message }
-        ],
-        temperature: 0.7,
-        max_tokens: 1000,
-      });
-
-      return completion.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
-    } catch (error) {
-      throw new Error(`Failed to generate response: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+  async generateLesson(_prompt: string, _userLevel: string): Promise<Result<LessonData>> {
+    // Mock implementation
+    return Result.ok({
+      title: 'Generated Lesson',
+      content: 'Generated content',
+      level: _userLevel
+    });
   }
 
-  private async convertToModules(modulesData: any[]): Promise<Module[]> {
-    const modules: Module[] = [];
-    
-    for (const moduleData of modulesData) {
-      const lessons: Lesson[] = [];
-      
-      for (const lessonData of moduleData.lessons) {
-        const lessonResult = Lesson.create({
-          title: lessonData.title,
-          type: lessonData.type,
-          content: lessonData.content,
-          promptsForUser: lessonData.prompts_for_user,
-          expectedOutcome: lessonData.expected_outcome,
-          hints: lessonData.hints,
-        });
-        
-        if (lessonResult.isFailure) {
-          throw new Error(`Failed to create lesson: ${lessonResult.getError().message}`);
-        }
-        
-        lessons.push(lessonResult.getValue());
-      }
-      
-      const moduleResult = Module.create({
-        title: moduleData.title,
-        learningObjectives: moduleData.learning_objectives,
-        lessons,
+  async chat(_message: string, _context: string): Promise<Result<string>> {
+    try {
+      const completion = await this.openai.chat.completions.create({
+        model: "gpt-4",
+        messages: [
+          { role: "system", content: "You are a helpful AI assistant." },
+          { role: "user", content: _message }
+        ],
+        temperature: 0.7,
       });
-      
-      if (moduleResult.isFailure) {
-        throw new Error(`Failed to create module: ${moduleResult.getError().message}`);
+
+      const response = completion.choices[0]?.message?.content;
+      if (!response) {
+        return Result.fail(new Error('No response from OpenAI'));
       }
-      
-      modules.push(moduleResult.getValue());
+
+      return Result.ok(response);
+    } catch (error) {
+      return Result.fail(error as Error);
     }
-    
-    return modules;
   }
 }

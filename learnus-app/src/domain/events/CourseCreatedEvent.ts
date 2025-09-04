@@ -6,9 +6,9 @@ export class CourseCreatedEvent implements DomainEvent {
 
   constructor(
     public readonly courseId: string,
-    public readonly title: string,
-    public readonly level: string,
-    public readonly userId?: string
+    public readonly _title: string,
+    public readonly _level: string,
+    public readonly _userId?: string
   ) {
     this.occurredAt = new Date();
     this.aggregateId = courseId;

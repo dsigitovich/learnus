@@ -37,7 +37,7 @@ export class Result<T, E = Error> {
   }
 
   public static ok<U>(value?: U): Result<U, never> {
-    return new Result<U, never>(true, undefined, value);
+    return new Result<U, never>(true, undefined as never, value);
   }
 
   public static fail<E>(error: E): Result<never, E> {
