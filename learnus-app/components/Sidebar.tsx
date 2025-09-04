@@ -8,9 +8,10 @@ import { UserMenu } from './auth/UserMenu';
 interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
+  onCourseSelect?: () => void;
 }
 
-export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
+export default function Sidebar({ isOpen, onToggle, onCourseSelect }: SidebarProps) {
   const { 
     chats, 
     currentChatId, 
@@ -58,9 +59,9 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
 
       {/* Sidebar */}
       <div
-        className={`fixed md:relative z-50 h-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ${
-          isOpen ? 'w-64' : 'w-0 md:w-0'
-        } overflow-hidden`}
+        className={`fixed md:relative z-50 h-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out ${
+          isOpen ? 'w-64 md:w-64' : 'w-0 md:w-0'
+        } overflow-hidden shadow-lg md:shadow-none`}
       >
         <div className="flex flex-col h-full w-64">
           {/* Header */}
@@ -74,7 +75,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
               {/* Кнопка закрытия сайдбара в правом верхнем углу */}
               <button
                 onClick={onToggle}
-                className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-2 md:p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
                 title="Закрыть сайдбар"
               >
                 <X size={20} />
@@ -88,7 +89,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
           </div>
 
                       {/* Content */}
-            <div className="flex-1 overflow-y-auto p-2 sidebar-scrollbar">
+            <div className="flex-1 overflow-y-auto p-2 sidebar-scrollbar mobile-scroll">
               {/* Список курсов */}
               <div className="space-y-2">
                 {courses.map((course) => {
@@ -98,10 +99,10 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                   return (
                     <div key={course.id} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                       <div
-                        className={`group flex items-center gap-2 px-3 py-2 cursor-pointer transition-colors ${
+                        className={`group flex items-center gap-2 px-3 py-3 md:py-2 cursor-pointer transition-colors touch-manipulation ${
                           currentCourseId === course.id && currentChatId === courseChats[0]?.id
                             ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100'
-                            : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                            : 'hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600'
                         }`}
                         onClick={() => {
                           selectCourse(course.id);
@@ -112,6 +113,8 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                           } else {
                             createCourseChat(course.id);
                           }
+                          // Вызываем callback для закрытия сайдбара на мобильном
+                          onCourseSelect?.();
                         }}
                       >
                         <button
@@ -119,7 +122,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                             e.stopPropagation();
                             toggleCourseExpansion(course.id);
                           }}
-                          className="p-0.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded"
+                          className="p-1.5 md:p-0.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded touch-manipulation min-h-[32px] min-w-[32px] flex items-center justify-center"
                         >
                           {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                         </button>
@@ -137,7 +140,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                             e.stopPropagation();
                             deleteCourse(course.id);
                           }}
-                          className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-all"
+                          className="opacity-0 group-hover:opacity-100 md:opacity-100 p-2 md:p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-all touch-manipulation min-h-[36px] min-w-[36px] flex items-center justify-center"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -207,7 +210,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
       {/* Toggle button - только для мобильных устройств */}
       <button
         onClick={onToggle}
-        className={`fixed top-4 left-4 z-50 p-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-all duration-300 md:hidden`}
+        className={`fixed top-4 left-4 z-50 p-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 active:bg-gray-900 transition-all duration-300 md:hidden touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center shadow-lg`}
       >
         <Menu size={20} />
       </button>
@@ -216,7 +219,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
       {!isOpen && (
         <button
           onClick={onToggle}
-          className="hidden md:block fixed top-4 left-4 z-40 p-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-all duration-300"
+          className="hidden md:block fixed top-4 left-4 z-40 p-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-all duration-300 min-h-[40px] min-w-[40px] flex items-center justify-center"
         >
           <Menu size={20} />
         </button>
