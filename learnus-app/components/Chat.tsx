@@ -74,7 +74,7 @@ export default function Chat() {
         
         // Если в ответе есть данные курса, создаем новый курс
         if (data.data.course) {
-          const courseId = createCourse(data.data.course);
+          createCourse(data.data.course);
           
           // Если это был временный чат для создания курса, удаляем его
           if (currentChat?.type === 'general' && currentChat?.title === 'Создание курса') {
