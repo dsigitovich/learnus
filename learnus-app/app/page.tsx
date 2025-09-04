@@ -1,7 +1,12 @@
 'use client';
 
 import ChatLayout from '@/components/ChatLayout';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 
 export default function Home() {
-  return <ChatLayout />;
+  return (
+    <AuthGuard>
+      <ChatLayout />
+    </AuthGuard>
+  );
 }

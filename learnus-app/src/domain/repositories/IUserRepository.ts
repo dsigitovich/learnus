@@ -2,9 +2,13 @@ import { User } from '../entities/User';
 import { Result } from '@shared/types/result';
 
 export interface IUserRepository {
-  save(_user: User): Promise<Result<void>>;
-  findById(_id: string): Promise<Result<User | null>>;
-  findByEmail(_email: string): Promise<Result<User | null>>;
-  delete(_id: string): Promise<Result<void>>;
-  exists(_id: string): Promise<Result<boolean>>;
+  save(user: User): Promise<Result<void>>;
+  findById(id: string): Promise<Result<User | null>>;
+  findByEmail(email: string): Promise<Result<User | null>>;
+  findByGoogleId(googleId: string): Promise<Result<User | null>>;
+  update(user: User): Promise<Result<void>>;
+  delete(id: string): Promise<Result<void>>;
+  exists(id: string): Promise<Result<boolean>>;
+  existsByEmail(email: string): Promise<Result<boolean>>;
+  existsByGoogleId(googleId: string): Promise<Result<boolean>>;
 }
