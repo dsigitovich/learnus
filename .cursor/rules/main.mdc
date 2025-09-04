@@ -1,0 +1,405 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Cursor Rules для проекта LearnUs
+
+Обеспечивает разработку по методологии TDD, автоматическую проверку кода и соблюдение Hexagonal + DDD архитектуры
+
+## 🏗️ Архитектура: Hexagonal + Domain-Driven Design (DDD)
+
+### Структура проекта (ОБЯЗАТЕЛЬНО соблюдать):
+```
+src/
+├── domain/                    # 🎯 Ядро бизнес-логики
+│   ├── entities/             # User, Course, Lesson, Module
+│   ├── value-objects/        # Email, CourseLevel, Progress
+│   ├── aggregates/           # CourseAggregate, UserAggregate
+│   ├── repositories/         # Интерфейсы репозиториев
+│   ├── services/             # Domain services
+│   └── events/               # Domain events
+│
+├── application/               # 🚀 Use Cases & Application Services
+│   ├── use-cases/            # CreateCourse, StartLesson, CompleteModule
+│   ├── services/             # CourseService, UserService, AIService
+│   ├── dto/                  # Data Transfer Objects
+│   └── interfaces/           # Application interfaces
+│
+├── infrastructure/            # 🔌 Внешние зависимости
+│   ├── database/             # SQLite implementation
+│   ├── ai/                   # OpenAI, Claude, etc.
+│   ├── auth/                 # NextAuth implementation
+│   └── external/             # Другие внешние сервисы
+│
+├── presentation/              # 🎨 UI & API
+│   ├── components/           # React components
+│   ├── pages/                # Next.js pages
+│   ├── api/                  # API routes
+│   └── hooks/                # Custom hooks
+│
+└── shared/                   # 🔧 Общие утилиты
+    ├── types/                # TypeScript types
+    ├── utils/                # Helper functions
+    └── constants/            # App constants
+```
+
+### Принципы архитектуры:
+- **Domain Layer** НЕ зависит от других слоев
+- **Application Layer** зависит только от Domain
+- **Infrastructure Layer** зависит от Domain и Application
+- **Presentation Layer** зависит от Application и Domain
+- **Shared** используется всеми слоями
+
+## 🧪 TDD (Test-Driven Development) Правила
+
+### Обязательные требования:
+- ВСЕГДА создавайте тесты ПЕРЕД написанием кода
+- Следуйте циклу Red-Green-Refactor:
+  1. Red: Напишите тест, который падает
+  2. Green: Напишите минимальный код для прохождения теста
+  3. Refactor: Улучшите код, сохраняя все тесты зелеными
+
+### Структура тестов:
+- Тесты должны быть в папке `__tests__` рядом с тестируемым кодом
+- Имя тестового файла: `[component].test.ts` или `[component].test.tsx`
+- Используйте описательные названия тестов: `describe('ComponentName', () => {})`
+- Каждый тест должен проверять одну конкретную функциональность
+
+### Пример структуры теста:
+```typescript
+describe('CreateCourseUseCase', () => {
+  describe('execute', () => {
+    it('should create course with valid data', async () => {
+      // Arrange
+      const request = { title: 'React Basics', level: 'Beginner' };
+      const mockRepository = createMockCourseRepository();
+      const mockAIService = createMockAIService();
+      const useCase = new CreateCourseUseCase(mockRepository, mockAIService);
+      
+      // Act
+      const result = await useCase.execute(request);
+      
+      // Assert
+      expect(result.isSuccess).toBe(true);
+      expect(result.course.title).toBe(request.title);
+    });
+  });
+});
+```
+
+## 🔍 Автоматическая проверка кода
+
+### Перед каждым коммитом:
+1. Запустите `npm run lint` - проверка ESLint
+2. Запустите `npm run type-check` - проверка TypeScript
+3. Запустите все тесты: `npm test`
+4. Убедитесь, что покрытие тестами > 80%
+
+### Качество кода:
+- Используйте Prettier для форматирования
+- Следуйте правилам ESLint
+- Все переменные должны быть типизированы (no `any`)
+- Используйте strict TypeScript режим
+
+## 🎯 Domain-Driven Design (DDD) Правила
+
+### Entities (Сущности):
+```typescript
+// domain/entities/Course.ts
+export class Course {
+  constructor(
+    private readonly id: CourseId,
+    private readonly title: CourseTitle,
+    private readonly modules: Module[],
+    private readonly level: CourseLevel
+  ) {}
+
+  // Бизнес-методы
+  canStartLesson(userLevel: UserLevel): boolean {
+    return userLevel.canAccess(this.level);
+  }
+
+  getNextLesson(progress: CourseProgress): Lesson | null {
+    // Бизнес-логика
+  }
+}
+```
+
+### Value Objects:
+```typescript
+// domain/value-objects/CourseLevel.ts
+export class CourseLevel {
+  constructor(private readonly value: 'Beginner' | 'Intermediate' | 'Advanced') {
+    if (!['Beginner', 'Intermediate', 'Advanced'].includes(value)) {
+      throw new Error('Invalid course level');
+    }
+  }
+
+  toString(): string {
+    return this.value;
+  }
+
+  canAccess(userLevel: UserLevel): boolean {
+    // Бизнес-правила доступа
+  }
+}
+```
+
+### Aggregates:
+```typescript
+// domain/aggregates/CourseAggregate.ts
+export class CourseAggregate {
+  constructor(
+    private readonly course: Course,
+    private readonly progress: CourseProgress
+  ) {}
+
+  startLesson(lessonId: string): Result<void, Error> {
+    // Бизнес-логика с валидацией
+  }
+}
+```
+
+## 🚀 Application Layer Правила
+
+### Use Cases:
+```typescript
+// application/use-cases/CreateCourseUseCase.ts
+export class CreateCourseUseCase {
+  constructor(
+    private courseRepository: ICourseRepository,
+    private aiService: IAIService,
+    private eventBus: IEventBus
+  ) {}
+
+  async execute(request: CreateCourseRequest): Promise<Result<Course, Error>> {
+    // 1. Валидация входных данных
+    const validationResult = this.validateRequest(request);
+    if (validationResult.isFailure()) {
+      return Result.fail(validationResult.error);
+    }
+
+    // 2. Создание курса через AI
+    const courseData = await this.aiService.generateCourse(request.prompt);
+    
+    // 3. Создание domain entity
+    const course = Course.create(courseData);
+    
+    // 4. Сохранение в репозитории
+    await this.courseRepository.save(course);
+    
+    // 5. Отправка событий
+    this.eventBus.publish(new CourseCreatedEvent(course.id));
+    
+    return Result.ok(course);
+  }
+}
+```
+
+### DTO (Data Transfer Objects):
+```typescript
+// application/dto/CreateCourseDto.ts
+export interface CreateCourseDto {
+  title: string;
+  description: string;
+  level: 'Beginner' | 'Intermediate' | 'Advanced';
+  prompt: string;
+}
+
+export interface CreateCourseResponse {
+  course: Course;
+  message: string;
+}
+```
+
+## 🔌 Infrastructure Layer Правила
+
+### Репозитории:
+```typescript
+// infrastructure/database/CourseRepository.ts
+export class CourseRepository implements ICourseRepository {
+  constructor(private db: Database) {}
+
+  async save(course: Course): Promise<void> {
+    // Реализация сохранения в SQLite
+  }
+
+  async findById(id: CourseId): Promise<Course | null> {
+    // Реализация поиска по ID
+  }
+}
+```
+
+### AI Service:
+```typescript
+// infrastructure/ai/OpenAIService.ts
+export class OpenAIService implements IAIService {
+  constructor(private openai: OpenAI) {}
+
+  async generateCourse(prompt: string): Promise<CourseData> {
+    // Реализация работы с OpenAI API
+  }
+}
+```
+
+## 🎨 Presentation Layer Правила
+
+### API Routes:
+```typescript
+// presentation/api/courses/route.ts
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const dto = CreateCourseDto.parse(body); // Zod валидация
+    
+    const useCase = container.resolve(CreateCourseUseCase);
+    const result = await useCase.execute(dto);
+    
+    if (result.isFailure()) {
+      return NextResponse.json(
+        { error: result.error.message },
+        { status: 400 }
+      );
+    }
+    
+    return NextResponse.json({
+      data: result.value,
+      message: 'Course created successfully'
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+### React Components:
+```typescript
+// presentation/components/CourseCreator.tsx
+export function CourseCreator() {
+  const createCourse = useCreateCourse(); // Custom hook
+
+  const handleSubmit = async (data: CreateCourseFormData) => {
+    const result = await createCourse(data);
+    
+    if (result.isSuccess) {
+      // Показать уведомление об успехе
+    } else {
+      // Показать ошибку
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* Форма создания курса */}
+    </form>
+  );
+}
+```
+
+## 📝 Стандарты кодирования
+
+### Именование:
+- **Entities**: PascalCase (`Course`, `User`)
+- **Value Objects**: PascalCase (`CourseLevel`, `Email`)
+- **Use Cases**: PascalCase с суффиксом UseCase (`CreateCourseUseCase`)
+- **Repositories**: PascalCase с суффиксом Repository (`CourseRepository`)
+- **Services**: PascalCase с суффиксом Service (`AIService`)
+- **Interfaces**: PascalCase с префиксом I (`ICourseRepository`)
+- **DTO**: PascalCase с суффиксом Dto (`CreateCourseDto`)
+
+### Комментарии:
+- Комментируйте сложную бизнес-логику
+- Используйте JSDoc для публичных API
+- Избегайте очевидных комментариев
+
+### Обработка ошибок:
+- Используйте Result pattern для обработки ошибок
+- Всегда обрабатывайте ошибки
+- Логируйте ошибки для отладки
+- Возвращайте понятные сообщения пользователю
+
+## 🚀 Рабочий процесс
+
+### При создании новой функциональности:
+1. Напишите тесты для domain entities
+2. Реализуйте domain entities и business rules
+3. Создайте use cases в application layer
+4. Реализуйте infrastructure adapters
+5. Создайте UI компоненты
+6. Добавьте интеграционные тесты
+
+### При рефакторинге:
+1. Убедитесь, что все тесты проходят
+2. Рефакторьте код
+3. Запустите тесты снова
+4. Обновите документацию при необходимости
+
+## 🧹 Обязательные проверки
+
+### Перед отправкой кода:
+- [ ] Все тесты проходят
+- [ ] ESLint не выдает ошибок
+- [ ] TypeScript компилируется без ошибок
+- [ ] Код соответствует Hexagonal + DDD архитектуре
+- [ ] Добавлены тесты для новой функциональности
+- [ ] Обновлена документация при необходимости
+
+## 📚 Рекомендуемые инструменты
+
+### Тестирование:
+- Jest для unit тестов
+- React Testing Library для компонентов
+- MSW для мокирования API
+
+### Качество кода:
+- ESLint + Prettier
+- Husky для pre-commit hooks
+- Commitizen для стандартизации коммитов
+
+### Архитектура:
+- Zod для валидации данных
+- Dependency injection container
+- Result pattern для обработки ошибок
+
+## ⚠️ Запрещено
+
+- Писать код без тестов
+- Использовать `any` тип в TypeScript
+- Смешивать слои архитектуры
+- Создавать циклические зависимости
+- Игнорировать ошибки линтера
+- Коммитить код с падающими тестами
+- Размещать бизнес-логику в presentation layer
+- Создавать entities без value objects
+
+## 🎯 Цели качества
+
+- Покрытие тестами: > 80%
+- TypeScript strict mode: включен
+- ESLint errors: 0
+- Build time: < 30 секунд
+- Bundle size: оптимизирован
+- Архитектурная чистота: 100%
+
+## 🔄 Dependency Injection
+
+### Container setup:
+```typescript
+// shared/container.ts
+export const container = new Container();
+
+// Регистрация зависимостей
+container.bind<ICourseRepository>('ICourseRepository').to(CourseRepository);
+container.bind<IAIService>('IAIService').to(OpenAIService);
+container.bind<CreateCourseUseCase>('CreateCourseUseCase').to(CreateCourseUseCase);
+```
+
+Следуйте этим правилам для создания качественного, тестируемого и архитектурно чистого кода для LearnUs!
+- Bundle size: оптимизирован
+
+Следуйте этим правилам для создания качественного, тестируемого и поддерживаемого кода!
