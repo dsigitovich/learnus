@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, MessageSquare, Menu, X, Trash2, BookOpen, ChevronRight, ChevronDown, Play } from 'lucide-react';
+import { Menu, X, Trash2, BookOpen, ChevronRight, ChevronDown } from 'lucide-react';
 import { useStore } from '@/lib/store';
 
 interface SidebarProps {
@@ -13,9 +13,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const { 
     chats, 
     currentChatId, 
-    createNewChat, 
     selectChat, 
-    deleteChat,
     courses,
     currentCourseId,
     selectCourse,
@@ -24,7 +22,6 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
   } = useStore();
   const [isMobile, setIsMobile] = useState(false);
   const [expandedCourses, setExpandedCourses] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState<'chats' | 'courses'>('chats');
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -67,81 +64,26 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
         <div className="flex flex-col h-full w-64">
           {/* Header */}
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between mb-3">
-              <button
-                onClick={createNewChat}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 rounded-lg transition-colors"
-              >
-                <Plus size={20} />
-                <span>Новый чат</span>
-              </button>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                <BookOpen size={20} />
+                Мои курсы
+              </h2>
               
               {/* Кнопка закрытия сайдбара в правом верхнем углу */}
               <button
                 onClick={onToggle}
-                className="ml-2 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title="Закрыть сайдбар"
               >
                 <X size={20} />
-              </button>
-            </div>
-            
-            {/* Вкладки */}
-            <div className="flex rounded-lg bg-gray-100 dark:bg-gray-700 p-1">
-              <button
-                onClick={() => setActiveTab('chats')}
-                className={`flex-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === 'chats'
-                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-                }`}
-              >
-                Чаты
-              </button>
-              <button
-                onClick={() => setActiveTab('courses')}
-                className={`flex-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === 'courses'
-                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-                }`}
-              >
-                Курсы
               </button>
             </div>
           </div>
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-2 sidebar-scrollbar">
-            {activeTab === 'chats' ? (
-              // Список чатов
-              chats.filter(chat => chat.type === 'general').map((chat) => (
-                <div
-                  key={chat.id}
-                  className={`group flex items-center gap-2 px-3 py-2 mb-1 rounded-lg cursor-pointer transition-colors ${
-                    currentChatId === chat.id
-                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100'
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
-                  onClick={() => selectChat(chat.id)}
-                >
-                  <MessageSquare size={18} className="flex-shrink-0" />
-                  <span className="flex-1 truncate text-sm">
-                    {chat.title || 'Новый чат'}
-                  </span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteChat(chat.id);
-                    }}
-                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-all"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))
-            ) : (
-              // Список курсов
+            {/* Список курсов */
               <div className="space-y-2">
                 {courses.map((course) => {
                   const isExpanded = expandedCourses.has(course.id);
@@ -151,13 +93,19 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                     <div key={course.id} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                       <div
                         className={`group flex items-center gap-2 px-3 py-2 cursor-pointer transition-colors ${
-                          currentCourseId === course.id
+                          currentCourseId === course.id && currentChatId === courseChats[0]?.id
                             ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100'
                             : 'hover:bg-gray-100 dark:hover:bg-gray-700'
                         }`}
                         onClick={() => {
                           selectCourse(course.id);
                           toggleCourseExpansion(course.id);
+                          // Автоматически открываем чат курса
+                          if (courseChats.length > 0) {
+                            selectChat(courseChats[0].id);
+                          } else {
+                            createCourseChat(course.id);
+                          }
                         }}
                       >
                         <button
@@ -173,16 +121,11 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                         <span className="flex-1 truncate text-sm font-medium">
                           {course.title}
                         </span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            createCourseChat(course.id);
-                          }}
-                          className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-all"
-                          title="Начать обучение"
-                        >
-                          <Play size={16} />
-                        </button>
+                        {courseChats.length === 0 && (
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            Новый
+                          </span>
+                        )}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -220,27 +163,14 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                             ))}
                           </div>
                           
-                          {/* Активные чаты курса */}
-                          {courseChats.length > 0 && (
+                          {/* Статус обучения */}
+                          {courseChats.length > 0 && courseChats[0].courseProgress && (
                             <div className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
-                              <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Активные сессии:</div>
-                              {courseChats.map((chat) => (
-                                <div
-                                  key={chat.id}
-                                  className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer text-xs ${
-                                    currentChatId === chat.id
-                                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100'
-                                      : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                                  }`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    selectChat(chat.id);
-                                  }}
-                                >
-                                  <MessageSquare size={14} />
-                                  <span className="flex-1 truncate">{chat.title}</span>
-                                </div>
-                              ))}
+                              <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Прогресс обучения:</div>
+                              <div className="text-xs text-gray-600 dark:text-gray-400">
+                                Модуль {courseChats[0].courseProgress.currentModuleIndex + 1} из {course.modules.length},
+                                Урок {courseChats[0].courseProgress.currentLessonIndex + 1} из {course.modules[courseChats[0].courseProgress.currentModuleIndex]?.lessons.length || 0}
+                              </div>
                             </div>
                           )}
                         </div>
@@ -253,11 +183,10 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                   <div className="text-center text-sm text-gray-500 dark:text-gray-400 py-8">
                     Нет созданных курсов.
                     <br />
-                    Создайте курс в чате с AI!
+                    Напишите в чате "создай курс по..."
                   </div>
                 )}
               </div>
-            )}
           </div>
 
           {/* Footer */}
