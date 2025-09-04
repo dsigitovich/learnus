@@ -264,11 +264,16 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Allows relative callback URLs
+      // Если URL начинается с "/", это относительный путь
       if (url.startsWith("/")) return `${baseUrl}${url}`;
-      // Allows callback URLs on the same origin
+      // Если URL на том же домене
       else if (new URL(url).origin === baseUrl) return url;
+      // По умолчанию перенаправляем на главную страницу
       return baseUrl;
+    },
+    async signIn({ user, account, profile }) {
+      // Возвращаем true для успешной авторизации
+      return true;
     }
   },
   pages: {
