@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, Trash2, BookOpen, ChevronRight, ChevronDown } from 'lucide-react';
 import { useStore } from '@/lib/store';
-import { UserMenu } from './auth/UserMenuNew';
+import { UserMenu } from './auth/UserMenu';
 
 interface SidebarProps {
   isOpen: boolean;
