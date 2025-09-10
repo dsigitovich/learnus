@@ -46,3 +46,11 @@ next-env.d.ts
 
 # backup files
 *.bak
+
+# deployment
+ssl/
+logs/
+*.log
+
+# docker
+.dockerignore

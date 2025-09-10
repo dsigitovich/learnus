@@ -13,7 +13,15 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "db:init": "node scripts/init-db.js",
-    "db:reset": "rm -f socrademy.db && npm run db:init"
+    "db:init:prod": "node scripts/init-db-production.js",
+    "db:reset": "rm -f learnus.db && npm run db:init",
+    "docker:build": "docker build -t learnus:latest .",
+    "docker:run": "docker run -d --name learnus-app -p 3000:3000 --env-file .env.local learnus:latest",
+    "docker:stop": "docker stop learnus-app && docker rm learnus-app",
+    "deploy": "./scripts/deploy.sh",
+    "deploy:env": "./scripts/deploy.sh env",
+    "deploy:build": "./scripts/deploy.sh build",
+    "deploy:docker": "./scripts/deploy.sh docker"
   },
   "dependencies": {
     "@types/better-sqlite3": "^7.6.13",
