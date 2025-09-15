@@ -1,4 +1,4 @@
-import { ValueObject } from '@/shared/types/value-object';
+import { ValueObject } from '../../shared/types/value-object';
 
 export type UserLevelType = 'Beginner' | 'Intermediate' | 'Advanced';
 
@@ -10,15 +10,19 @@ export class UserLevel extends ValueObject<UserLevelType> {
     this.validate();
   }
 
+  get value(): UserLevelType {
+    return this.props;
+  }
+
   private validate(): void {
-    if (!UserLevel.LEVELS.includes(this.value)) {
-      throw new Error(`Invalid user level: ${this.value}`);
+    if (!UserLevel.LEVELS.includes(this.props)) {
+      throw new Error(`Invalid user level: ${this.props}`);
     }
   }
 
   canAccessCourseLevel(courseLevel: UserLevel): boolean {
-    const userIndex = UserLevel.LEVELS.indexOf(this.value);
-    const courseIndex = UserLevel.LEVELS.indexOf(courseLevel.value);
+    const userIndex = UserLevel.LEVELS.indexOf(this.props);
+    const courseIndex = UserLevel.LEVELS.indexOf(courseLevel.props);
     return userIndex >= courseIndex;
   }
 

@@ -7,6 +7,10 @@ export class UserId extends ValueObject<string> {
     this.validate();
   }
 
+  get value(): string {
+    return this.props;
+  }
+
   private validate(): void {
     const value = this.props;
     if (!value || value.trim().length === 0) {
