@@ -8,7 +8,7 @@ export async function GET() {
     const dbPath = join(process.cwd(), 'learnus.db');
     try {
       readFileSync(dbPath);
-    } catch (error) {
+    } catch (_error) {
       return NextResponse.json(
         { 
           status: 'unhealthy', 
@@ -50,7 +50,7 @@ export async function GET() {
       environment: process.env.NODE_ENV || 'development'
     });
 
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json(
       { 
         status: 'unhealthy', 

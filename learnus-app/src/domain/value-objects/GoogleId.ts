@@ -1,4 +1,4 @@
-import { ValueObject } from '@/shared/types/value-object';
+import { ValueObject } from '@shared/types/value-object';
 
 export class GoogleId extends ValueObject<string> {
   constructor(value: string) {

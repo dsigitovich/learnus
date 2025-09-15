@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { UserRepository } from '@/infrastructure/database/UserRepository';
-import { UserMapper } from '@/infrastructure/database/mappers/UserMapper';
-import Database from 'better-sqlite3';
+import { container } from '@shared/container/container';
+import { TYPES } from '@shared/container/types';
+import { IUserRepository } from '@domain/repositories/IUserRepository';
 
-const db = new Database('./socrademy.db');
-const userRepository = new UserRepository(db);
-
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -19,16 +16,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const userResult = await userRepository.findById(session.user.id);
-    
-    if (userResult.isFailure) {
-      return NextResponse.json(
-        { error: 'Failed to fetch user data' },
-        { status: 500 }
-      );
-    }
-
-    const user = userResult.getValue();
+    const userRepository = container.get<IUserRepository>(TYPES.IUserRepository);
+    const user = await userRepository.findById({ value: session.user.id } as any);
     
     if (!user) {
       return NextResponse.json(
@@ -37,10 +26,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const userDTO = UserMapper.toDTO(user);
-
     return NextResponse.json({
-      data: userDTO,
+      data: {
+        id: user.id.value,
+        email: user.email.value,
+        name: user.name,
+        avatarUrl: user.avatarUrl,
+        userLevel: user.userLevel?.value
+      },
       message: 'User profile fetched successfully'
     });
   } catch (error) {

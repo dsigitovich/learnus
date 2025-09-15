@@ -1,6 +1,6 @@
-import { IUserRepository } from '@/domain/repositories/IUserRepository';
-import { User } from '@/domain/entities/User';
-import { Result } from '@/shared/types/result';
+import { IUserRepository } from '@domain/repositories/IUserRepository';
+import { User } from '@domain/entities/User';
+import { Result } from '@shared/types/result';
 import { UserMapper, UserPersistenceDTO } from './mappers/UserMapper';
 import Database from 'better-sqlite3';
 

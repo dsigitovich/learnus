@@ -2,6 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { Suspense } from 'react';
 
 const errors: Record<string, string> = {
   Configuration: 'Ошибка конфигурации сервера. Пожалуйста, свяжитесь с администратором.',
@@ -19,7 +20,7 @@ const errors: Record<string, string> = {
   Default: 'Произошла неизвестная ошибка при авторизации.',
 };
 
-export default function AuthErrorPage() {
+function AuthErrorContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
   const errorMessage = error ? errors[error] || errors.Default : errors.Default;
@@ -75,5 +76,13 @@ export default function AuthErrorPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AuthErrorPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthErrorContent />
+    </Suspense>
   );
 }
