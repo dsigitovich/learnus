@@ -50,7 +50,7 @@ describe('GetCourseProgressUseCase', () => {
         expectedOutcome: 'Test outcome',
       }).getValue();
 
-      const module = Module.create({
+      const courseModule = Module.create({
         title: 'Test Module',
         learningObjectives: ['Test objective'],
         lessons: [lesson],
@@ -60,7 +60,7 @@ describe('GetCourseProgressUseCase', () => {
         title: 'Test Course',
         description: 'Test description',
         level: 'Beginner',
-        modules: [module],
+        modules: [courseModule],
       }).getValue();
 
       const courseProgress = CourseProgress.create('course-1', 'user-1').getValue();
@@ -108,7 +108,7 @@ describe('GetCourseProgressUseCase', () => {
         expectedOutcome: 'Test outcome',
       }).getValue();
 
-      const module = Module.create({
+      const courseModule = Module.create({
         title: 'Test Module',
         learningObjectives: ['Test objective'],
         lessons: [lesson],
@@ -118,7 +118,7 @@ describe('GetCourseProgressUseCase', () => {
         title: 'Test Course',
         description: 'Test description',
         level: 'Beginner',
-        modules: [module],
+        modules: [courseModule],
       }).getValue();
 
       mockCourseRepository.findById.mockResolvedValue({ isSuccess: true, getValue: () => course } as any);
@@ -231,7 +231,7 @@ describe('GetCourseProgressUseCase', () => {
         expectedOutcome: 'Test outcome',
       }).getValue();
 
-      const module = Module.create({
+      const courseModule = Module.create({
         title: 'Test Module',
         learningObjectives: ['Test objective'],
         lessons: [lesson],
@@ -241,7 +241,7 @@ describe('GetCourseProgressUseCase', () => {
         title: 'Test Course',
         description: 'Test description',
         level: 'Beginner',
-        modules: [module],
+        modules: [courseModule],
       }).getValue();
 
       mockCourseRepository.findById.mockResolvedValue({ isSuccess: true, getValue: () => course } as any);

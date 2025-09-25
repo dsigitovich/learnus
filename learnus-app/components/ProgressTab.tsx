@@ -105,17 +105,29 @@ export default function ProgressTab({ courseId, lessons }: ProgressTabProps) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <p className="ml-2">Загрузка прогресса...</p>
       </div>
     );
   }
 
+  // Debug information
+  console.log('ProgressTab render:', { courseId, courseProgress, lessons: lessons.length });
+
   return (
     <div className="space-y-6">
+      {/* Debug info */}
+      <div className="bg-yellow-50 border border-yellow-200 rounded p-4">
+        <h4 className="font-medium text-yellow-800">Отладочная информация:</h4>
+        <p className="text-sm text-yellow-700">Course ID: {courseId}</p>
+        <p className="text-sm text-yellow-700">Уроков: {lessons.length}</p>
+        <p className="text-sm text-yellow-700">Прогресс: {courseProgress ? 'Загружен' : 'Не загружен'}</p>
+      </div>
+
       {/* Progress Overview */}
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Прогресс курса</h3>
         
-        {courseProgress && (
+        {courseProgress ? (
           <div className="space-y-4">
             {/* Progress Bar */}
             <div className="w-full bg-gray-200 rounded-full h-3">
@@ -160,6 +172,16 @@ export default function ProgressTab({ courseId, lessons }: ProgressTabProps) {
                 </div>
               </div>
             )}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-500">Прогресс не найден. Начните изучение курса!</p>
+            <button 
+              onClick={() => loadCourseProgress()}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Обновить прогресс
+            </button>
           </div>
         )}
       </div>

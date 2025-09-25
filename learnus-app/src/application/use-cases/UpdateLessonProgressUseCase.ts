@@ -45,7 +45,15 @@ export class UpdateLessonProgressUseCase {
 
       if (!courseProgress) {
         // Создаем новый прогресс курса
-        const createResult = CourseProgress.create(dto.courseId, dto.userId);
+        const { v4: uuidv4 } = require('uuid');
+        
+        const createResult = CourseProgress.create({
+          id: uuidv4(),
+          courseId: dto.courseId,
+          userId: dto.userId,
+          lessonProgresses: [],
+        });
+        
         if (createResult.isFailure) {
           return Result.fail(createResult.getError());
         }
@@ -58,7 +66,14 @@ export class UpdateLessonProgressUseCase {
 
       if (!lessonProgress) {
         // Создаем новый прогресс урока
-        const createLessonProgressResult = LessonProgress.create(dto.lessonId, dto.userId);
+        const { v4: uuidv4 } = require('uuid');
+        
+        const createLessonProgressResult = LessonProgress.create({
+          id: uuidv4(),
+          lessonId: dto.lessonId,
+          status: ProgressStatus.create('not_started').getValue(),
+        });
+        
         if (createLessonProgressResult.isFailure) {
           return Result.fail(createLessonProgressResult.getError());
         }

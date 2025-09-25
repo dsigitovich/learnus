@@ -49,7 +49,7 @@ export class UserMapper {
               return Result.fail(interestsResult.getError());
             }
           }
-        } catch (error) {
+        } catch {
           // Игнорируем ошибки парсинга JSON
         }
       }

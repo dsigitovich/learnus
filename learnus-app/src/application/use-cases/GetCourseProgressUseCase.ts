@@ -41,25 +41,25 @@ export class GetCourseProgressUseCase {
       const courseProgress = courseProgressResult.getValue();
 
       if (!courseProgress) {
-        // Возвращаем пустой прогресс, если пользователь еще не начал курс
-        const response: GetCourseProgressResponse = {
-          success: true,
-          courseProgress: {
-            id: '',
-            courseId: dto.courseId,
-            userId: dto.userId,
-            completionPercentage: 0,
-            overallStatus: 'Не начато',
-            totalLessons: 0,
-            completedLessons: 0,
-            inProgressLessons: 0,
-            notStartedLessons: 0,
-            lessonProgresses: [],
-          },
-          message: 'Course progress not found. User has not started this course yet.',
-        };
+        // Создаем начальный прогресс для курса
+        const { CourseProgress } = require('@domain/entities/CourseProgress');
+        const { v4: uuidv4 } = require('uuid');
+        
+        const initialProgress = CourseProgress.create({
+          id: uuidv4(),
+          courseId: dto.courseId,
+          userId: dto.userId,
+          lessonProgresses: [], // Пустой массив, будет заполнен при первом обновлении
+        });
 
-        return Result.ok(response);
+        // Сохраняем начальный прогресс
+        const saveResult = await this.courseProgressRepository.save(initialProgress);
+        if (saveResult.isFailure) {
+          return Result.fail(new Error('Failed to create initial course progress'));
+        }
+
+        // Используем созданный прогресс
+        courseProgress = initialProgress;
       }
 
       // 4. Подготовка ответа

@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { GetCourseProgressUseCase } from '@/src/application/use-cases/GetCourseProgressUseCase';
 import { UpdateLessonProgressUseCase } from '@/src/application/use-cases/UpdateLessonProgressUseCase';
 import { container } from '@/src/shared/container/container';
+import { TYPES } from '@/src/shared/container/types';
 
 export async function GET(
   _request: NextRequest,
@@ -26,7 +27,7 @@ export async function GET(
       );
     }
 
-    const useCase = container.get<GetCourseProgressUseCase>('GetCourseProgressUseCase');
+    const useCase = container.get<GetCourseProgressUseCase>(TYPES.GetCourseProgressUseCase);
     const result = await useCase.execute({
       courseId,
       userId: session.user.id,
@@ -39,7 +40,10 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(result.getValue());
+    return NextResponse.json({
+      success: true,
+      courseProgress: result.getValue()
+    });
   } catch (error) {
     console.error('Error getting course progress:', error);
     return NextResponse.json(
@@ -87,7 +91,7 @@ export async function PUT(
       );
     }
 
-    const useCase = container.get<UpdateLessonProgressUseCase>('UpdateLessonProgressUseCase');
+    const useCase = container.get<UpdateLessonProgressUseCase>(TYPES.UpdateLessonProgressUseCase);
     const result = await useCase.execute({
       courseId,
       lessonId,
@@ -102,7 +106,10 @@ export async function PUT(
       );
     }
 
-    return NextResponse.json(result.getValue());
+    return NextResponse.json({
+      success: true,
+      courseProgress: result.getValue()
+    });
   } catch (error) {
     console.error('Error updating lesson progress:', error);
     return NextResponse.json(

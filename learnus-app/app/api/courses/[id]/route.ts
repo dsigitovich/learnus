@@ -37,7 +37,8 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     const courseData = CourseMapper.toPersistence(course);
     
     return NextResponse.json({
-      data: courseData,
+      success: true,
+      course: courseData,
     });
   } catch (error) {
     console.error('Get course error:', error);

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест прогресса курса</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Тест функциональности прогресса курса</h1>
+    
+    <div class="test-section info">
+        <h3>Информация</h3>
+        <p>Этот файл поможет протестировать API для работы с прогрессом курсов.</p>
+        <p>Убедитесь, что сервер разработки запущен на порту 3000.</p>
+    </div>
+
+    <div class="test-section">
+        <h3>1. Тест получения прогресса курса</h3>
+        <p>Тестируем GET /api/courses/{courseId}/progress</p>
+        <input type="text" id="courseId" placeholder="ID курса" value="1">
+        <button onclick="testGetProgress()">Получить прогресс</button>
+        <div id="getProgressResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Тест обновления прогресса урока</h3>
+        <p>Тестируем PUT /api/courses/{courseId}/progress</p>
+        <input type="text" id="updateCourseId" placeholder="ID курса" value="1">
+        <input type="text" id="lessonId" placeholder="ID урока" value="lesson-1">
+        <select id="status">
+            <option value="not_started">Не начато</option>
+            <option value="in_progress">В процессе</option>
+            <option value="completed">Завершено</option>
+        </select>
+        <button onclick="testUpdateProgress()">Обновить прогресс</button>
+        <div id="updateProgressResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Проверка аутентификации</h3>
+        <button onclick="testAuth()">Проверить аутентификацию</button>
+        <div id="authResult"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+
+        async function testGetProgress() {
+            const courseId = document.getElementById('courseId').value;
+            const resultDiv = document.getElementById('getProgressResult');
+            
+            try {
+                resultDiv.innerHTML = '<p>Загрузка...</p>';
+                
+                const response = await fetch(`${API_BASE}/api/courses/${courseId}/progress`, {
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>Успех!</h4>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h4>Ошибка (${response.status})</h4>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>Ошибка сети</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testUpdateProgress() {
+            const courseId = document.getElementById('updateCourseId').value;
+            const lessonId = document.getElementById('lessonId').value;
+            const status = document.getElementById('status').value;
+            const resultDiv = document.getElementById('updateProgressResult');
+            
+            try {
+                resultDiv.innerHTML = '<p>Обновление...</p>';
+                
+                const response = await fetch(`${API_BASE}/api/courses/${courseId}/progress`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        lessonId,
+                        status
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>Успех!</h4>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h4>Ошибка (${response.status})</h4>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>Ошибка сети</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testAuth() {
+            const resultDiv = document.getElementById('authResult');
+            
+            try {
+                resultDiv.innerHTML = '<p>Проверка...</p>';
+                
+                const response = await fetch(`${API_BASE}/api/auth/me`, {
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>Аутентификация успешна!</h4>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h4>Не аутентифицирован (${response.status})</h4>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                            <p>Попробуйте войти в систему через <a href="${API_BASE}/auth/signin" target="_blank">страницу входа</a></p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>Ошибка сети</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
