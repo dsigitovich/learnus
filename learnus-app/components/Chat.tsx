@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Send, BookOpen, GraduationCap, BarChart3 } from 'lucide-react';
 import { useStore } from '@/lib/store';
 import { ChatMessage } from '@/lib/types';
 
 export default function Chat() {
+  const router = useRouter();
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -175,7 +177,7 @@ export default function Chat() {
             
             {/* Кнопка прогресса */}
             <button
-              onClick={() => {/* TODO: Добавить логику открытия прогресса */}}
+              onClick={() => router.push('/progress')}
               className="flex items-center gap-2 px-3 py-1.5 bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-300 rounded-md hover:bg-blue-200 dark:hover:bg-blue-700 transition-colors text-sm"
               title="Показать прогресс курса"
             >

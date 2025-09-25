@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Course } from '@/lib/types';
 import { BookOpen, Target, FileText, CheckCircle, BarChart3 } from 'lucide-react';
 import ProgressTodoList from './ProgressTodoList';
@@ -12,6 +13,7 @@ interface CourseViewProps {
 }
 
 export default function CourseView({ course, onStartLearning }: CourseViewProps) {
+  const router = useRouter();
   const [showProgress, setShowProgress] = useState(false);
   const { progressTodo, markAsCompleted, markAsIncomplete, refreshProgress, isLoading } = useCourseProgress(course);
 
@@ -29,7 +31,7 @@ export default function CourseView({ course, onStartLearning }: CourseViewProps)
           
           {/* Кнопка прогресса в правом верхнем углу */}
           <button
-            onClick={() => setShowProgress(true)}
+            onClick={() => router.push('/progress')}
             className="flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
             title="Показать прогресс курса"
           >

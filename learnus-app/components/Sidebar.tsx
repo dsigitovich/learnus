@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Menu, X, Trash2, BookOpen, ChevronRight, ChevronDown, MessageCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Menu, X, Trash2, BookOpen, ChevronRight, ChevronDown, MessageCircle, BarChart3 } from 'lucide-react';
 import { useStore } from '@/lib/store';
 import { UserProfileMenu } from './auth/UserProfileMenu';
 
@@ -11,6 +12,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
+  const router = useRouter();
   const { 
     chats, 
     currentChatId, 
@@ -231,6 +233,17 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                   </div>
                 )}
               </div>
+          </div>
+
+          {/* Кнопка прогресса */}
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <button
+              onClick={() => router.push('/progress')}
+              className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              <BarChart3 size={20} />
+              <span className="font-medium">Мой прогресс</span>
+            </button>
           </div>
 
           {/* Footer */}
