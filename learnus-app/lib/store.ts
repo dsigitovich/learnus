@@ -34,7 +34,7 @@ interface AppState extends AuthState {
   
   // Методы для работы с курсами
   createCourse: (course: Omit<Course, 'id' | 'createdAt' | 'updatedAt'>) => string;
-  selectCourse: (courseId: string) => void;
+  selectCourse: (courseId: string | null) => void;
   deleteCourse: (courseId: string) => void;
   updateCourse: (courseId: string, course: Partial<Course>) => void;
   createCourseChat: (courseId: string) => void;
@@ -176,7 +176,7 @@ export const useStore = create<AppState>()(
     return newCourse.id;
   },
   
-  selectCourse: (courseId: string) => {
+  selectCourse: (courseId: string | null) => {
     set({ currentCourseId: courseId });
   },
   

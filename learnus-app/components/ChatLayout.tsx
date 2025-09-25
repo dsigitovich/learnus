@@ -7,13 +7,14 @@ import CourseView from './CourseView';
 import { useStore } from '@/lib/store';
 
 export default function ChatLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const { currentCourseId, courses, createCourseChat, chats, currentChatId } = useStore();
   
   // Проверяем, есть ли выбранный курс и нет ли активного чата
   const selectedCourse = currentCourseId ? courses.find(c => c.id === currentCourseId) : null;
   const currentChat = currentChatId ? chats.find(c => c.id === currentChatId) : null;
-  const showCourseView = selectedCourse && (!currentChat || currentChat.courseId !== currentCourseId);
+  // Показываем CourseView только если выбран курс И нет активного чата ИЛИ активный чат не связан с курсом
+  const showCourseView = selectedCourse && (!currentChat || (currentChat.courseId !== currentCourseId && currentChat.type !== 'general'));
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
