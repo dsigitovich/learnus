@@ -24,8 +24,8 @@ describe('GetCourseProgressUseCase', () => {
     mockCourseRepository = {
       save: jest.fn(),
       findById: jest.fn(),
-      findByUserId: jest.fn(),
-      delete: jest.fn(),
+      findByTitle: jest.fn(),
+      findByLevel: jest.fn(),
     };
 
     useCase = new GetCourseProgressUseCase(

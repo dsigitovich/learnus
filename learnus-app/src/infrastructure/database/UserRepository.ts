@@ -1,6 +1,6 @@
-import { IUserRepository } from '@/domain/repositories/IUserRepository';
-import { User } from '@/domain/entities/User';
-import { Result } from '@/shared/types/result';
+import { IUserRepository } from '@domain/repositories/IUserRepository';
+import { User } from '@domain/entities/User';
+import { Result } from '@shared/types/result';
 import { UserMapper, UserPersistenceDTO } from './mappers/UserMapper';
 import Database from 'better-sqlite3';
 
@@ -34,7 +34,7 @@ export class UserRepository implements IUserRepository {
 
       return Result.ok<void>();
     } catch (error) {
-      return Result.fail<void>(new Error(`Failed to save user: ${(error as Error).message}`));
+      return Result.fail(new Error(`Failed to save user: ${(error as Error).message}`));
     }
   }
 
@@ -61,7 +61,7 @@ export class UserRepository implements IUserRepository {
 
       return Result.ok<void>();
     } catch (error) {
-      return Result.fail<void>(new Error(`Failed to update user: ${(error as Error).message}`));
+      return Result.fail(new Error(`Failed to update user: ${(error as Error).message}`));
     }
   }
 
@@ -76,7 +76,7 @@ export class UserRepository implements IUserRepository {
 
       return this.mapToUser(row);
     } catch (error) {
-      return Result.fail<User | null>(new Error(`Failed to find user by id: ${(error as Error).message}`));
+      return Result.fail(new Error(`Failed to find user by id: ${(error as Error).message}`));
     }
   }
 
@@ -91,7 +91,7 @@ export class UserRepository implements IUserRepository {
 
       return this.mapToUser(row);
     } catch (error) {
-      return Result.fail<User | null>(new Error(`Failed to find user by email: ${(error as Error).message}`));
+      return Result.fail(new Error(`Failed to find user by email: ${(error as Error).message}`));
     }
   }
 
@@ -106,7 +106,7 @@ export class UserRepository implements IUserRepository {
 
       return this.mapToUser(row);
     } catch (error) {
-      return Result.fail<User | null>(new Error(`Failed to find user by Google ID: ${(error as Error).message}`));
+      return Result.fail(new Error(`Failed to find user by Google ID: ${(error as Error).message}`));
     }
   }
 
@@ -116,7 +116,7 @@ export class UserRepository implements IUserRepository {
       stmt.run(id);
       return Result.ok<void>();
     } catch (error) {
-      return Result.fail<void>(new Error(`Failed to delete user: ${(error as Error).message}`));
+      return Result.fail(new Error(`Failed to delete user: ${(error as Error).message}`));
     }
   }
 
@@ -126,7 +126,7 @@ export class UserRepository implements IUserRepository {
       const exists = stmt.get(id) !== undefined;
       return Result.ok<boolean>(exists);
     } catch (error) {
-      return Result.fail<boolean>(new Error(`Failed to check user existence: ${(error as Error).message}`));
+      return Result.fail(new Error(`Failed to check user existence: ${(error as Error).message}`));
     }
   }
 
@@ -136,7 +136,7 @@ export class UserRepository implements IUserRepository {
       const exists = stmt.get(email) !== undefined;
       return Result.ok<boolean>(exists);
     } catch (error) {
-      return Result.fail<boolean>(new Error(`Failed to check email existence: ${(error as Error).message}`));
+      return Result.fail(new Error(`Failed to check email existence: ${(error as Error).message}`));
     }
   }
 
@@ -146,7 +146,7 @@ export class UserRepository implements IUserRepository {
       const exists = stmt.get(googleId) !== undefined;
       return Result.ok<boolean>(exists);
     } catch (error) {
-      return Result.fail<boolean>(new Error(`Failed to check Google ID existence: ${(error as Error).message}`));
+      return Result.fail(new Error(`Failed to check Google ID existence: ${(error as Error).message}`));
     }
   }
 
@@ -159,7 +159,7 @@ export class UserRepository implements IUserRepository {
     const userResult = UserMapper.toDomain(persistenceDTO);
     
     if (userResult.isFailure) {
-      return Result.fail<User | null>(userResult.getError());
+      return Result.fail(userResult.getError());
     }
     
     return Result.ok<User | null>(userResult.getValue());

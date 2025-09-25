@@ -197,7 +197,16 @@ describe('LessonProgress', () => {
       
       // Simulate some time passing
       const startTime = lessonProgress.startedAt!;
-      lessonProgress.props.startedAt = new Date(startTime.getTime() - 5 * 60 * 1000); // 5 minutes ago
+      // Simulate time passing by creating a new lesson progress with adjusted time
+      const adjustedLessonProgress = LessonProgress.create(
+        lessonProgress.lessonId,
+        lessonProgress.userId,
+        lessonProgress.status,
+        lessonProgress.id
+      ).getValue();
+      
+      // Manually set startedAt for testing purposes
+      (adjustedLessonProgress as any).props.startedAt = new Date(startTime.getTime() - 5 * 60 * 1000);
       
       lessonProgress.complete();
       
@@ -225,7 +234,16 @@ describe('LessonProgress', () => {
       
       // Simulate some time passing
       const startTime = lessonProgress.startedAt!;
-      lessonProgress.props.startedAt = new Date(startTime.getTime() - 5 * 60 * 1000); // 5 minutes ago
+      // Simulate time passing by creating a new lesson progress with adjusted time
+      const adjustedLessonProgress = LessonProgress.create(
+        lessonProgress.lessonId,
+        lessonProgress.userId,
+        lessonProgress.status,
+        lessonProgress.id
+      ).getValue();
+      
+      // Manually set startedAt for testing purposes
+      (adjustedLessonProgress as any).props.startedAt = new Date(startTime.getTime() - 5 * 60 * 1000);
       
       lessonProgress.complete();
       

@@ -2,7 +2,6 @@ import { Result } from '@shared/types/result';
 import { ICourseProgressRepository } from '../../domain/repositories/ICourseProgressRepository';
 import { ICourseRepository } from '../../domain/repositories/ICourseRepository';
 import { GetCourseProgressDto, GetCourseProgressResponse } from '../dto/GetCourseProgressDto';
-import { CourseProgress } from '../../domain/entities/CourseProgress';
 
 export class GetCourseProgressUseCase {
   constructor(
@@ -14,13 +13,13 @@ export class GetCourseProgressUseCase {
     try {
       // 1. Валидация входных данных
       const validationResult = this.validateDto(dto);
-      if (validationResult.isFailure()) {
+      if (validationResult.isFailure) {
         return Result.fail(validationResult.getError());
       }
 
       // 2. Проверка существования курса
       const courseResult = await this.courseRepository.findById(dto.courseId);
-      if (courseResult.isFailure()) {
+      if (courseResult.isFailure) {
         return Result.fail(new Error('Failed to find course'));
       }
 
@@ -35,7 +34,7 @@ export class GetCourseProgressUseCase {
         dto.userId
       );
 
-      if (courseProgressResult.isFailure()) {
+      if (courseProgressResult.isFailure) {
         return Result.fail(new Error('Failed to find course progress'));
       }
 

@@ -25,6 +25,7 @@ describe('CreateCourseUseCase', () => {
       generateCourse: jest.fn(),
       generateLesson: jest.fn(),
       chat: jest.fn(),
+      generateResponse: jest.fn(),
     };
 
     mockEventBus = {

@@ -1,5 +1,4 @@
 import { OpenAIService } from '../OpenAIService';
-import { Result } from '@shared/types/result';
 
 // Mock OpenAI
 const mockCreate = jest.fn();

@@ -72,7 +72,7 @@ export class LessonProgress extends Entity<LessonProgressProps> {
     }
 
     const startResult = this.status.start();
-    if (startResult.isFailure()) {
+    if (startResult.isFailure) {
       return Result.fail(startResult.getError());
     }
 
@@ -87,7 +87,7 @@ export class LessonProgress extends Entity<LessonProgressProps> {
     }
 
     const completeResult = this.status.complete();
-    if (completeResult.isFailure()) {
+    if (completeResult.isFailure) {
       return Result.fail(completeResult.getError());
     }
 
@@ -102,7 +102,7 @@ export class LessonProgress extends Entity<LessonProgressProps> {
     }
 
     const restartResult = this.status.restart();
-    if (restartResult.isFailure()) {
+    if (restartResult.isFailure) {
       return Result.fail(restartResult.getError());
     }
 

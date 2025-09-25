@@ -8,7 +8,7 @@ import { useStore } from '@/lib/store';
 
 export default function ChatLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { currentCourseId, courses, createCourseChat, chats, currentChatId } = useStore();
+  const { currentCourseId, courses, chats, currentChatId } = useStore();
   
   // Проверяем, есть ли выбранный курс и нет ли активного чата
   const selectedCourse = currentCourseId ? courses.find(c => c.id === currentCourseId) : null;
@@ -24,8 +24,7 @@ export default function ChatLayout() {
       }`}>
         {showCourseView && selectedCourse ? (
           <CourseView 
-            course={selectedCourse} 
-            onStartLearning={() => createCourseChat(selectedCourse.id)}
+            courseId={selectedCourse.id}
           />
         ) : (
           <Chat />

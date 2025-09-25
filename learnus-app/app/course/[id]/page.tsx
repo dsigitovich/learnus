@@ -7,7 +7,7 @@ interface CoursePageProps {
   };
 }
 
-export async function generateMetadata({ params }: CoursePageProps): Promise<Metadata> {
+export async function generateMetadata({ params: _params }: CoursePageProps): Promise<Metadata> {
   return {
     title: 'Курс - LearnUs',
     description: 'Изучайте программирование с помощью ИИ-помощника',

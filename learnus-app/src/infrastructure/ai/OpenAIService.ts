@@ -52,7 +52,7 @@ export class OpenAIService implements IAIService {
       let courseData;
       try {
         courseData = JSON.parse(response);
-      } catch (parseError) {
+      } catch {
         // Если не удалось распарсить, используем fallback
         courseData = {
           moduleTitle: `Введение в ${title}`,
@@ -155,6 +155,29 @@ ${contextData.learningObjectives ? `- Цели обучения: ${contextData.l
       return Result.ok(response);
     } catch (error) {
       return Result.fail(error as Error);
+    }
+  }
+
+  async generateResponse(message: string, systemPrompt: string): Promise<string> {
+    try {
+      const completion = await this.openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: message }
+        ],
+        temperature: 0.7,
+        max_tokens: 1000,
+      });
+
+      const response = completion.choices[0]?.message?.content;
+      if (!response) {
+        throw new Error('No response from OpenAI');
+      }
+
+      return response;
+    } catch (error) {
+      throw error;
     }
   }
 }

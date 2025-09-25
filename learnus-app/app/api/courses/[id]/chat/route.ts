@@ -36,7 +36,7 @@ export async function POST(
     }
 
     // Get AI service from container
-    const aiService = container.resolve<IAIService>('IAIService');
+    const aiService = container.get<IAIService>('IAIService');
     
     // Create context-aware prompt for course chat
     const systemPrompt = `Ты - AI-помощник для изучения курса. Твоя задача - помочь студенту понять материал курса, ответить на вопросы и дать полезные советы.
@@ -71,7 +71,7 @@ export async function POST(
 }
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {

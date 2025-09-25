@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:safe": "npm run check-all && npm run dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
@@ -12,10 +13,26 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "check-all": "npm run type-check && npm run lint && npm test",
+    "check-quick": "npm run type-check && npm run lint",
+    "create:value-object": "node scripts/create-file.js value-object",
+    "create:entity": "node scripts/create-file.js entity",
+    "create:use-case": "node scripts/create-file.js use-case",
     "db:init": "node scripts/init-db.js",
-    "db:reset": "rm -f socrademy.db && npm run db:init"
+    "db:reset": "rm -f socrademy.db && npm run db:init",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "tsc --noEmit"
+    ],
+    "*.{js,jsx}": [
+      "eslint --fix"
+    ]
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/sqlite3": "^3.1.11",
     "better-sqlite3": "^12.2.0",
@@ -50,8 +67,10 @@
     "eslint": "^8.57.1",
     "eslint-config-next": "^15.5.2",
     "eslint-plugin-next": "^0.0.0",
+    "husky": "^9.1.7",
     "jest": "^30.1.3",
     "jest-environment-jsdom": "^30.1.2",
+    "lint-staged": "^16.2.0",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.1",
     "tsx": "^4.20.5",

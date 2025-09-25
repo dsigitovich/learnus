@@ -16,13 +16,13 @@ export class UpdateLessonProgressUseCase {
     try {
       // 1. Валидация входных данных
       const validationResult = this.validateDto(dto);
-      if (validationResult.isFailure()) {
+      if (validationResult.isFailure) {
         return Result.fail(validationResult.getError());
       }
 
       // 2. Проверка существования курса
       const courseResult = await this.courseRepository.findById(dto.courseId);
-      if (courseResult.isFailure()) {
+      if (courseResult.isFailure) {
         return Result.fail(new Error('Failed to find course'));
       }
 
@@ -37,7 +37,7 @@ export class UpdateLessonProgressUseCase {
         dto.userId
       );
 
-      if (courseProgressResult.isFailure()) {
+      if (courseProgressResult.isFailure) {
         return Result.fail(new Error('Failed to find course progress'));
       }
 
@@ -46,7 +46,7 @@ export class UpdateLessonProgressUseCase {
       if (!courseProgress) {
         // Создаем новый прогресс курса
         const createResult = CourseProgress.create(dto.courseId, dto.userId);
-        if (createResult.isFailure()) {
+        if (createResult.isFailure) {
           return Result.fail(createResult.getError());
         }
 
@@ -59,7 +59,7 @@ export class UpdateLessonProgressUseCase {
       if (!lessonProgress) {
         // Создаем новый прогресс урока
         const createLessonProgressResult = LessonProgress.create(dto.lessonId, dto.userId);
-        if (createLessonProgressResult.isFailure()) {
+        if (createLessonProgressResult.isFailure) {
           return Result.fail(createLessonProgressResult.getError());
         }
 
@@ -67,25 +67,25 @@ export class UpdateLessonProgressUseCase {
 
         // Добавляем прогресс урока к курсу
         const addResult = courseProgress.addLessonProgress(lessonProgress);
-        if (addResult.isFailure()) {
+        if (addResult.isFailure) {
           return Result.fail(addResult.getError());
         }
       }
 
       // 5. Обновление статуса урока
       const statusResult = ProgressStatus.create(dto.status);
-      if (statusResult.isFailure()) {
+      if (statusResult.isFailure) {
         return Result.fail(statusResult.getError());
       }
 
       const updateResult = courseProgress.updateLessonProgress(dto.lessonId, statusResult.getValue());
-      if (updateResult.isFailure()) {
+      if (updateResult.isFailure) {
         return Result.fail(updateResult.getError());
       }
 
       // 6. Сохранение прогресса курса
       const saveResult = await this.courseProgressRepository.save(courseProgress);
-      if (saveResult.isFailure()) {
+      if (saveResult.isFailure) {
         return Result.fail(saveResult.getError());
       }
 

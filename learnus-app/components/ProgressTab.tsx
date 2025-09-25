@@ -14,22 +14,6 @@ interface LessonProgress {
   notes?: string;
 }
 
-interface CourseProgress {
-  id: string;
-  courseId: string;
-  userId: string;
-  completionPercentage: number;
-  overallStatus: string;
-  totalLessons: number;
-  completedLessons: number;
-  inProgressLessons: number;
-  notStartedLessons: number;
-  startedAt?: string;
-  completedAt?: string;
-  totalDurationInMinutes?: number;
-  averageLessonDurationInMinutes?: number;
-  lessonProgresses: LessonProgress[];
-}
 
 interface ProgressTabProps {
   courseId: string;
@@ -42,7 +26,7 @@ interface ProgressTabProps {
   }>;
 }
 
-export default function ProgressTab({ courseId, courseTitle, lessons }: ProgressTabProps) {
+export default function ProgressTab({ courseId, lessons }: ProgressTabProps) {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
   
@@ -209,7 +193,7 @@ export default function ProgressTab({ courseId, courseTitle, lessons }: Progress
                         </p>
                         {lessonProgress?.notes && (
                           <p className="text-sm text-gray-500 mt-2 italic">
-                            "{lessonProgress.notes}"
+                            &quot;{lessonProgress.notes}&quot;
                           </p>
                         )}
                       </div>

@@ -6,7 +6,6 @@ import { Module } from '../../../domain/entities/Module';
 import { Lesson } from '../../../domain/entities/Lesson';
 import { CourseProgress } from '../../../domain/entities/CourseProgress';
 import { LessonProgress } from '../../../domain/entities/LessonProgress';
-import { ProgressStatus } from '../../../domain/value-objects/ProgressStatus';
 
 describe('UpdateLessonProgressUseCase', () => {
   let useCase: UpdateLessonProgressUseCase;
@@ -25,8 +24,8 @@ describe('UpdateLessonProgressUseCase', () => {
     mockCourseRepository = {
       save: jest.fn(),
       findById: jest.fn(),
-      findByUserId: jest.fn(),
-      delete: jest.fn(),
+      findByTitle: jest.fn(),
+      findByLevel: jest.fn(),
     };
 
     useCase = new UpdateLessonProgressUseCase(

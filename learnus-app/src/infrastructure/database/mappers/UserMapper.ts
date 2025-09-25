@@ -1,5 +1,5 @@
-import { User } from '@/domain/entities/User';
-import { Result } from '@/shared/types/result';
+import { User } from '@domain/entities/User';
+import { Result } from '@shared/types/result';
 
 export interface UserPersistenceDTO {
   id: string;
@@ -27,7 +27,7 @@ export class UserMapper {
       }, raw.id);
 
       if (userResult.isFailure) {
-        return Result.fail<User>(userResult.getError());
+        return Result.fail(userResult.getError());
       }
 
       const user = userResult.getValue();
@@ -36,7 +36,7 @@ export class UserMapper {
       if (raw.bio) {
         const bioResult = user.updateBio(raw.bio);
         if (bioResult.isFailure) {
-          return Result.fail<User>(bioResult.getError());
+          return Result.fail(bioResult.getError());
         }
       }
 
@@ -46,7 +46,7 @@ export class UserMapper {
           if (Array.isArray(interests)) {
             const interestsResult = user.updateInterests(interests);
             if (interestsResult.isFailure) {
-              return Result.fail<User>(interestsResult.getError());
+              return Result.fail(interestsResult.getError());
             }
           }
         } catch (error) {
@@ -56,7 +56,7 @@ export class UserMapper {
 
       return Result.ok(user);
     } catch (error) {
-      return Result.fail<User>(new Error(`Failed to map user from persistence: ${(error as Error).message}`));
+      return Result.fail(new Error(`Failed to map user from persistence: ${(error as Error).message}`));
     }
   }
 

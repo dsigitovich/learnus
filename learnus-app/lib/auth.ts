@@ -1,6 +1,6 @@
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import { type Adapter } from 'next-auth/adapters';
+import { type Adapter, AdapterUser, AdapterAccount } from 'next-auth/adapters';
 import Database from 'better-sqlite3';
 import { randomUUID } from 'crypto';
 
@@ -10,7 +10,7 @@ const db = new Database('./socrademy.db');
 // Custom SQLite Adapter for NextAuth
 function SQLiteAdapter(): Adapter {
   return {
-    async createUser(user) {
+    async createUser(user: Partial<AdapterUser> & Pick<AdapterUser, "id">) {
       const id = randomUUID();
       const stmt = db.prepare(`
         INSERT INTO users (id, email, name, avatar_url, email_verified, google_id)
@@ -31,7 +31,7 @@ function SQLiteAdapter(): Adapter {
         email: user.email!,
         name: user.name || '',
         image: user.image || null,
-        emailVerified: user.emailVerified
+        emailVerified: user.emailVerified || null
       };
     },
 
@@ -98,11 +98,11 @@ function SQLiteAdapter(): Adapter {
         email: user.email!,
         name: user.name || '',
         image: user.image || null,
-        emailVerified: user.emailVerified
+        emailVerified: user.emailVerified || null
       };
     },
 
-    async linkAccount(account) {
+    async linkAccount(account: AdapterAccount) {
       const id = randomUUID();
       const stmt = db.prepare(`
         INSERT INTO accounts (
@@ -290,7 +290,7 @@ export const authOptions: NextAuthOptions = {
       // По умолчанию перенаправляем на главную страницу
       return baseUrl;
     },
-    async signIn({ user, account, profile }) {
+    async signIn({ user: _user, account: _account, profile: _profile }) {
       return true;
     }
   },

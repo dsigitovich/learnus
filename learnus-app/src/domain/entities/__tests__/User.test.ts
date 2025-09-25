@@ -1,11 +1,13 @@
 import { User } from '../User';
 import { CourseLevel } from '../../value-objects/CourseLevel';
+import { UserLevel } from '../../value-objects/UserLevel';
 
 describe('User', () => {
   describe('create', () => {
     it('should create User with valid data', () => {
       // Arrange
       const props = {
+        googleId: '123456789',
         email: 'user@example.com',
         name: 'Test User',
         level: 'Beginner' as const,
@@ -25,6 +27,7 @@ describe('User', () => {
     it('should fail with invalid email', () => {
       // Arrange
       const props = {
+        googleId: '123456789',
         email: 'invalid-email',
         name: 'Test User',
         level: 'Beginner' as const,
@@ -41,6 +44,7 @@ describe('User', () => {
     it('should fail with empty name', () => {
       // Arrange
       const props = {
+        googleId: '123456789',
         email: 'user@example.com',
         name: '',
         level: 'Beginner' as const,
@@ -57,6 +61,7 @@ describe('User', () => {
     it('should fail with invalid level', () => {
       // Arrange
       const props = {
+        googleId: '123456789',
         email: 'user@example.com',
         name: 'Test User',
         level: 'InvalidLevel' as 'Beginner' | 'Intermediate' | 'Advanced',
@@ -73,6 +78,7 @@ describe('User', () => {
     it('should create User with existing id', () => {
       // Arrange
       const props = {
+        googleId: '123456789',
         email: 'user@example.com',
         name: 'Test User',
         level: 'Beginner' as const,
@@ -92,11 +98,12 @@ describe('User', () => {
     it('should update user level', () => {
       // Arrange
       const user = User.create({
+        googleId: '123456789',
         email: 'user@example.com',
         name: 'Test User',
         level: 'Beginner',
       }).getValue();
-      const newLevel = CourseLevel.create('Intermediate').getValue();
+      const newLevel = UserLevel.createIntermediate();
 
       // Act
       user.updateLevel(newLevel);
@@ -110,6 +117,7 @@ describe('User', () => {
     it('should update user name', () => {
       // Arrange
       const user = User.create({
+        googleId: '123456789',
         email: 'user@example.com',
         name: 'Test User',
         level: 'Beginner',
@@ -126,6 +134,7 @@ describe('User', () => {
     it('should fail with empty name', () => {
       // Arrange
       const user = User.create({
+        googleId: '123456789',
         email: 'user@example.com',
         name: 'Test User',
         level: 'Beginner',
@@ -144,6 +153,7 @@ describe('User', () => {
     it('should allow access to course with same or lower level', () => {
       // Arrange
       const user = User.create({
+        googleId: '123456789',
         email: 'user@example.com',
         name: 'Test User',
         level: 'Intermediate',
@@ -159,6 +169,7 @@ describe('User', () => {
     it('should deny access to course with higher level', () => {
       // Arrange
       const user = User.create({
+        googleId: '123456789',
         email: 'user@example.com',
         name: 'Test User',
         level: 'Beginner',

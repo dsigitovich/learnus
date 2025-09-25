@@ -44,7 +44,7 @@ describe('/api/courses/[id]/progress', () => {
         })
       };
 
-      mockContainer.resolve.mockReturnValue(mockUseCase);
+      mockContainer.get.mockReturnValue(mockUseCase);
 
       const request = new NextRequest('http://localhost:3000/api/courses/course-1/progress');
       const params = { id: 'course-1' };
@@ -112,7 +112,7 @@ describe('/api/courses/[id]/progress', () => {
         })
       };
 
-      mockContainer.resolve.mockReturnValue(mockUseCase);
+      mockContainer.get.mockReturnValue(mockUseCase);
 
       const request = new NextRequest('http://localhost:3000/api/courses/course-1/progress');
       const params = { id: 'course-1' };
@@ -156,7 +156,7 @@ describe('/api/courses/[id]/progress', () => {
         })
       };
 
-      mockContainer.resolve.mockReturnValue(mockUseCase);
+      mockContainer.get.mockReturnValue(mockUseCase);
 
       const request = new NextRequest('http://localhost:3000/api/courses/course-1/progress', {
         method: 'PUT',
@@ -280,7 +280,7 @@ describe('/api/courses/[id]/progress', () => {
         })
       };
 
-      mockContainer.resolve.mockReturnValue(mockUseCase);
+      mockContainer.get.mockReturnValue(mockUseCase);
 
       const request = new NextRequest('http://localhost:3000/api/courses/course-1/progress', {
         method: 'PUT',

@@ -19,4 +19,5 @@ export interface IAIService {
   generateCourse(_title: string, _description: string, _level: string): Promise<Result<CourseData>>;
   generateLesson(_prompt: string, _userLevel: string): Promise<Result<LessonData>>;
   chat(_message: string, _context: string): Promise<Result<string>>;
+  generateResponse(_message: string, _systemPrompt: string): Promise<string>;
 }

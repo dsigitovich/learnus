@@ -6,7 +6,7 @@ import { UpdateLessonProgressUseCase } from '@/src/application/use-cases/UpdateL
 import { container } from '@/src/shared/container/container';
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -26,13 +26,13 @@ export async function GET(
       );
     }
 
-    const useCase = container.resolve<GetCourseProgressUseCase>('GetCourseProgressUseCase');
+    const useCase = container.get<GetCourseProgressUseCase>('GetCourseProgressUseCase');
     const result = await useCase.execute({
       courseId,
       userId: session.user.id,
     });
 
-    if (result.isFailure()) {
+    if (result.isFailure) {
       return NextResponse.json(
         { error: result.getError().message },
         { status: 400 }
@@ -87,7 +87,7 @@ export async function PUT(
       );
     }
 
-    const useCase = container.resolve<UpdateLessonProgressUseCase>('UpdateLessonProgressUseCase');
+    const useCase = container.get<UpdateLessonProgressUseCase>('UpdateLessonProgressUseCase');
     const result = await useCase.execute({
       courseId,
       lessonId,
@@ -95,7 +95,7 @@ export async function PUT(
       status,
     });
 
-    if (result.isFailure()) {
+    if (result.isFailure) {
       return NextResponse.json(
         { error: result.getError().message },
         { status: 400 }
