@@ -48,6 +48,9 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
   };
 
   const handleGeneralChatClick = () => {
+    // Сбрасываем выбранный курс при переходе к общему чату
+    selectCourse(null);
+    
     // Ищем существующий общий чат
     const generalChat = chats.find(chat => chat.type === 'general');
     
@@ -94,26 +97,27 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                 <X size={20} />
               </button>
             </div>
+            
+            {/* Кнопка Общий чат в заголовке */}
+            <div className="mt-3">
+              <button
+                onClick={handleGeneralChatClick}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors font-medium ${
+                  currentChatId && chats.find(chat => chat.id === currentChatId)?.type === 'general'
+                    ? 'bg-blue-500 text-white shadow-md'
+                    : 'bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-700'
+                }`}
+              >
+                <MessageCircle size={18} className="flex-shrink-0" />
+                <span className="text-sm">Общий чат</span>
+              </button>
+            </div>
           </div>
           
+
           {/* User Menu */}
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <UserProfileMenu />
-          </div>
-
-          {/* General Chat Button */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-            <button
-              onClick={handleGeneralChatClick}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                currentChatId && chats.find(chat => chat.id === currentChatId)?.type === 'general'
-                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100'
-                  : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-              }`}
-            >
-              <MessageCircle size={20} className="flex-shrink-0" />
-              <span className="font-medium">Общий чат</span>
-            </button>
           </div>
 
                       {/* Content */}
