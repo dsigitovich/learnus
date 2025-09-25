@@ -12,6 +12,33 @@ interface Chat {
   courseProgress?: CourseProgress; // Прогресс прохождения курса
 }
 
+interface LessonProgress {
+  id: string;
+  lessonId: string;
+  status: 'not_started' | 'in_progress' | 'completed';
+  startedAt?: string;
+  completedAt?: string;
+  durationInMinutes?: number;
+  notes?: string;
+}
+
+interface CourseProgressData {
+  id: string;
+  courseId: string;
+  userId: string;
+  completionPercentage: number;
+  overallStatus: string;
+  totalLessons: number;
+  completedLessons: number;
+  inProgressLessons: number;
+  notStartedLessons: number;
+  startedAt?: string;
+  completedAt?: string;
+  totalDurationInMinutes?: number;
+  averageLessonDurationInMinutes?: number;
+  lessonProgresses: LessonProgress[];
+}
+
 interface AppState extends AuthState {
   // Чаты
   chats: Chat[];
@@ -40,6 +67,12 @@ interface AppState extends AuthState {
   createCourseChat: (courseId: string) => void;
   updateCourseProgress: (chatId: string, progress: CourseProgress) => void;
   
+  // Прогресс курсов
+  courseProgressData: Record<string, CourseProgressData>; // courseId -> progress data
+  fetchCourseProgress: (courseId: string) => Promise<void>;
+  updateLessonProgress: (courseId: string, lessonId: string, status: 'not_started' | 'in_progress' | 'completed') => Promise<void>;
+  getCourseProgress: (courseId: string) => CourseProgressData | null;
+  
   // Методы для работы с аутентификацией
   setUser: (user: User | null) => void;
   setLoading: (isLoading: boolean) => void;
@@ -56,6 +89,7 @@ export const useStore = create<AppState>()(
   messages: [],
   courses: [],
   currentCourseId: null,
+  courseProgressData: {},
   
   // Auth state
   user: null,
@@ -261,6 +295,57 @@ export const useStore = create<AppState>()(
     }));
   },
   
+  // Методы для работы с прогрессом курсов
+  fetchCourseProgress: async (courseId: string) => {
+    try {
+      const response = await fetch(`/api/courses/${courseId}/progress`);
+      const data = await response.json();
+      
+      if (data.success && data.courseProgress) {
+        set((state) => ({
+          courseProgressData: {
+            ...state.courseProgressData,
+            [courseId]: data.courseProgress,
+          },
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching course progress:', error);
+    }
+  },
+  
+  updateLessonProgress: async (courseId: string, lessonId: string, status: 'not_started' | 'in_progress' | 'completed') => {
+    try {
+      const response = await fetch(`/api/courses/${courseId}/progress`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          lessonId,
+          status,
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success && data.courseProgress) {
+        set((state) => ({
+          courseProgressData: {
+            ...state.courseProgressData,
+            [courseId]: data.courseProgress,
+          },
+        }));
+      }
+    } catch (error) {
+      console.error('Error updating lesson progress:', error);
+    }
+  },
+  
+  getCourseProgress: (courseId: string) => {
+    return get().courseProgressData[courseId] || null;
+  },
+  
   // Методы для работы с аутентификацией
   setUser: (user: User | null) => {
     set({
@@ -340,6 +425,7 @@ export const useStore = create<AppState>()(
         currentChatId: state.currentChatId,
         courses: state.courses,
         currentCourseId: state.currentCourseId,
+        courseProgressData: state.courseProgressData,
       }),
     }
   )
