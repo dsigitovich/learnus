@@ -75,6 +75,25 @@ export interface CourseProgress {
   completedLessons: string[]; // ID уроков в формате "module-index:lesson-index"
 }
 
+// Типы для todo-листа прогресса
+export interface ProgressTodoItem {
+  id: string;
+  type: 'lesson' | 'module_quiz' | 'final_assessment';
+  title: string;
+  moduleIndex: number;
+  lessonIndex?: number;
+  isCompleted: boolean;
+  isAvailable: boolean; // доступен ли для выполнения
+}
+
+export interface CourseProgressTodo {
+  courseId: string;
+  items: ProgressTodoItem[];
+  totalItems: number;
+  completedItems: number;
+  progressPercentage: number;
+}
+
 // Типы для аутентификации и пользователей
 export interface User {
   id: string;

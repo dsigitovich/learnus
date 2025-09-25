@@ -1,4 +1,4 @@
-import { ValueObject } from '@/shared/types/value-object';
+import { ValueObject } from '@/src/shared/types/value-object';
 
 export class UserId extends ValueObject<string> {
   constructor(value: string) {

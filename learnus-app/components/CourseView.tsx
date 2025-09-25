@@ -1,7 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { Course } from '@/lib/types';
-import { BookOpen, Target, FileText, CheckCircle } from 'lucide-react';
+import { BookOpen, Target, FileText, CheckCircle, BarChart3 } from 'lucide-react';
+import ProgressTodoList from './ProgressTodoList';
+import { useCourseProgress } from '@/lib/hooks/useCourseProgress';
 
 interface CourseViewProps {
   course: Course;
@@ -9,14 +12,33 @@ interface CourseViewProps {
 }
 
 export default function CourseView({ course, onStartLearning }: CourseViewProps) {
+  const [showProgress, setShowProgress] = useState(false);
+  const { progressTodo, markAsCompleted, markAsIncomplete, refreshProgress, isLoading } = useCourseProgress(course);
+
   return (
     <div className="max-w-4xl mx-auto p-6">
       {/* Заголовок курса */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-3">
-          <BookOpen className="text-blue-600 dark:text-blue-400" size={32} />
-          {course.title}
-        </h1>
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-3">
+              <BookOpen className="text-blue-600 dark:text-blue-400" size={32} />
+              {course.title}
+            </h1>
+          </div>
+          
+          {/* Кнопка прогресса в правом верхнем углу */}
+          <button
+            onClick={() => setShowProgress(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+            title="Показать прогресс курса"
+          >
+            <BarChart3 size={16} />
+            <span className="text-sm font-medium">
+              {progressTodo ? `${progressTodo.progressPercentage}%` : '0%'}
+            </span>
+          </button>
+        </div>
         <p className="text-gray-600 dark:text-gray-400 text-lg mb-4">{course.description}</p>
         <div className="flex items-center gap-4">
           <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium">
@@ -126,6 +148,18 @@ export default function CourseView({ course, onStartLearning }: CourseViewProps)
           ))}
         </div>
       </div>
+
+      {/* Модальное окно прогресса */}
+      {showProgress && progressTodo && (
+        <ProgressTodoList
+          progressTodo={progressTodo}
+          onMarkCompleted={markAsCompleted}
+          onMarkIncomplete={markAsIncomplete}
+          onRefresh={refreshProgress}
+          isLoading={isLoading}
+          onClose={() => setShowProgress(false)}
+        />
+      )}
     </div>
   );
 }
