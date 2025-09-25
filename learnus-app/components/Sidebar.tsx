@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Menu, X, Trash2, BookOpen, ChevronRight, ChevronDown } from 'lucide-react';
+import { Menu, X, Trash2, BookOpen, ChevronRight, ChevronDown, MessageCircle } from 'lucide-react';
 import { useStore } from '@/lib/store';
 import { UserProfileMenu } from './auth/UserProfileMenu';
 
@@ -19,7 +19,8 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
     currentCourseId,
     selectCourse,
     deleteCourse,
-    createCourseChat
+    createCourseChat,
+    createGeneralChat
   } = useStore();
   const [isMobile, setIsMobile] = useState(false);
   const [expandedCourses, setExpandedCourses] = useState<Set<string>>(new Set());
@@ -46,6 +47,19 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
     });
   };
 
+  const handleGeneralChatClick = () => {
+    // Ищем существующий общий чат
+    const generalChat = chats.find(chat => chat.type === 'general');
+    
+    if (generalChat) {
+      // Если общий чат уже существует, переключаемся на него
+      selectChat(generalChat.id);
+    } else {
+      // Если общего чата нет, создаем новый
+      createGeneralChat();
+    }
+  };
+
   return (
     <>
       {/* Overlay для мобильных устройств */}
@@ -68,7 +82,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                 <BookOpen size={20} />
-                Мои курсы
+                LearnUs
               </h2>
               
               {/* Кнопка закрытия сайдбара в правом верхнем углу */}
@@ -87,9 +101,29 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
             <UserProfileMenu />
           </div>
 
+          {/* General Chat Button */}
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <button
+              onClick={handleGeneralChatClick}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                currentChatId && chats.find(chat => chat.id === currentChatId)?.type === 'general'
+                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100'
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+              }`}
+            >
+              <MessageCircle size={20} className="flex-shrink-0" />
+              <span className="font-medium">Общий чат</span>
+            </button>
+          </div>
+
                       {/* Content */}
             <div className="flex-1 overflow-y-auto p-2 sidebar-scrollbar">
               {/* Список курсов */}
+              <div className="mb-3">
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 px-2 mb-2">
+                  Мои курсы
+                </h3>
+              </div>
               <div className="space-y-2">
                 {courses.map((course) => {
                   const isExpanded = expandedCourses.has(course.id);
