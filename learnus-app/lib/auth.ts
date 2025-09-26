@@ -290,7 +290,7 @@ export const authOptions: NextAuthOptions = {
       // По умолчанию перенаправляем на главную страницу
       return baseUrl;
     },
-    async signIn({ user, account, profile }) {
+    async signIn({ user: _user, account: _account, profile: _profile }) {
       return true;
     }
   },

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { UserRepository } from '@/infrastructure/database/UserRepository';
-import { UserMapper } from '@/infrastructure/database/mappers/UserMapper';
+import { UserRepository } from '@/src/infrastructure/database/UserRepository';
+import { UserMapper } from '@/src/infrastructure/database/mappers/UserMapper';
 import Database from 'better-sqlite3';
 import { z } from 'zod';
 

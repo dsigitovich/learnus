@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { UserRepository } from '@/infrastructure/database/UserRepository';
-import { UserMapper } from '@/infrastructure/database/mappers/UserMapper';
+import { UserRepository } from '@/src/infrastructure/database/UserRepository';
+import { UserMapper } from '@/src/infrastructure/database/mappers/UserMapper';
 import Database from 'better-sqlite3';
 
 const db = new Database('./socrademy.db');
 const userRepository = new UserRepository(db);
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     

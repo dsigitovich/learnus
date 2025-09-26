@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, BookOpen, GraduationCap } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Send, BookOpen, GraduationCap, BarChart3 } from 'lucide-react';
 import { useStore } from '@/lib/store';
 import { ChatMessage } from '@/lib/types';
 
 export default function Chat() {
+  const router = useRouter();
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -157,19 +159,31 @@ export default function Chat() {
       {/* Заголовок для курса */}
       {currentCourse && currentChat?.type === 'course' && (
         <div className="bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800 px-6 py-3">
-          <div className="max-w-4xl mx-auto flex items-center gap-3">
-            <GraduationCap className="text-blue-600 dark:text-blue-400" size={24} />
-            <div className="flex-1">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                {currentCourse.title}
-              </h2>
-              {courseProgress && (
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  Модуль {courseProgress.currentModuleIndex + 1} из {currentCourse.modules.length} • 
-                  Урок {courseProgress.currentLessonIndex + 1} из {currentCourse.modules[courseProgress.currentModuleIndex]?.lessons.length || 0}
-                </div>
-              )}
+          <div className="max-w-4xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-3 flex-1">
+              <GraduationCap className="text-blue-600 dark:text-blue-400" size={24} />
+              <div className="flex-1">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  {currentCourse.title}
+                </h2>
+                {courseProgress && (
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    Модуль {courseProgress.currentModuleIndex + 1} из {currentCourse.modules.length} • 
+                    Урок {courseProgress.currentLessonIndex + 1} из {currentCourse.modules[courseProgress.currentModuleIndex]?.lessons.length || 0}
+                  </div>
+                )}
+              </div>
             </div>
+            
+            {/* Кнопка прогресса */}
+            <button
+              onClick={() => router.push('/progress')}
+              className="flex items-center gap-2 px-3 py-1.5 bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-300 rounded-md hover:bg-blue-200 dark:hover:bg-blue-700 transition-colors text-sm"
+              title="Показать прогресс курса"
+            >
+              <BarChart3 size={14} />
+              <span>Прогресс</span>
+            </button>
           </div>
         </div>
       )}

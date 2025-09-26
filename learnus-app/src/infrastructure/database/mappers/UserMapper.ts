@@ -1,5 +1,5 @@
-import { User } from '@/domain/entities/User';
-import { Result } from '@/shared/types/result';
+import { User } from '@/src/domain/entities/User';
+import { Result } from '@/src/shared/types/result';
 
 export interface UserPersistenceDTO {
   id: string;
