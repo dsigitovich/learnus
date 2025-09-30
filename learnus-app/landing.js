@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add loading states for buttons
     const addLoadingState = (button) => {
         const originalText = button.innerHTML;
-        button.innerHTML = '<span>Загрузка...</span>';
+        button.innerHTML = '<span>Loading...</span>';
         button.disabled = true;
         
         setTimeout(() => {
