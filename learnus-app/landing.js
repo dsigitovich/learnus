@@ -157,22 +157,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const statElements = document.querySelectorAll('.hero-stats, .results-grid, .proof-stats');
     statElements.forEach(el => statsObserver.observe(el));
 
-    // Typing effect for hero title
+    // Fade-in animation for hero title (instead of typing effect)
     const heroTitle = document.querySelector('.hero-title');
     if (heroTitle) {
-        const titleText = heroTitle.innerHTML;
-        heroTitle.innerHTML = '';
+        heroTitle.style.opacity = '0';
+        heroTitle.style.transform = 'translateY(20px)';
+        heroTitle.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
         
-        let i = 0;
-        const typeWriter = () => {
-            if (i < titleText.length) {
-                heroTitle.innerHTML += titleText.charAt(i);
-                i++;
-                setTimeout(typeWriter, 50);
-            }
-        };
-        
-        setTimeout(typeWriter, 500);
+        setTimeout(() => {
+            heroTitle.style.opacity = '1';
+            heroTitle.style.transform = 'translateY(0)';
+        }, 300);
     }
 
     // Form validation for demo inputs
