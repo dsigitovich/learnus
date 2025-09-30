@@ -110,16 +110,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Floating cards animation
-    const floatingCards = document.querySelectorAll('.floating-card');
-    floatingCards.forEach((card, index) => {
-        // Add random movement
-        setInterval(() => {
-            const randomX = (Math.random() - 0.5) * 20;
-            const randomY = (Math.random() - 0.5) * 20;
-            card.style.transform = `translate(${randomX}px, ${randomY}px)`;
-        }, 3000 + index * 1000);
-    });
+    // Learning demo animation
+    const learningDemo = document.querySelector('.learning-demo');
+    if (learningDemo) {
+        // Add subtle hover effect
+        learningDemo.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-15px) scale(1.02)';
+        });
+        
+        learningDemo.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    }
 
     // Counter animation for stats
     const animateCounter = (element, target, duration = 2000) => {
@@ -289,6 +291,39 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.remove('keyboard-navigation');
     });
 
+    // Sticky CTA functionality
+    const stickyCTA = document.querySelector('.sticky-cta');
+    const heroSection = document.querySelector('.hero');
+    
+    if (stickyCTA && heroSection) {
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    stickyCTA.style.display = 'none';
+                } else {
+                    stickyCTA.style.display = 'block';
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        observer.observe(heroSection);
+    }
+    
+    // Sticky CTA button click tracking
+    const stickyCTAButton = document.querySelector('.sticky-cta-btn');
+    if (stickyCTAButton) {
+        stickyCTAButton.addEventListener('click', function() {
+            // Track conversion event
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'conversion', {
+                    'event_category': 'Sticky CTA',
+                    'event_label': 'Mobile Sticky CTA',
+                    'value': 20
+                });
+            }
+        });
+    }
+    
     // Console message for developers
     console.log('%c🚀 LearnUs Landing Page', 'color: #2563EB; font-size: 20px; font-weight: bold;');
     console.log('%cBuilt with ❤️ for maximum conversion', 'color: #10B981; font-size: 14px;');
